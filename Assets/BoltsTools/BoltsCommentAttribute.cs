@@ -10,4 +10,10 @@ public class BoltsCommentAttribute : PropertyAttribute
         this.comment = comment;
         this.space = space;
     }
+
+    public BoltsCommentAttribute(string comment)
+    {
+        this.comment = comment;
+        this.space = 10;
+    }
 }

@@ -1,0 +1,3 @@
+saveFileName=save.dat
+usePersistentDataPath=True
+useEncryption=False

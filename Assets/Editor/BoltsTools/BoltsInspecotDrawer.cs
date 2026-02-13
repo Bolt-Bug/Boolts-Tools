@@ -349,7 +349,7 @@ public class BoltsCommentDrawer : PropertyDrawer
         float fieldHeight = EditorGUI.GetPropertyHeight(property, label, true);
         float commentHeight = EditorGUIUtility.singleLineHeight * 1.3f;
 
-        float y = position.y += comment.space;
+        float y = position.y;
 
         Rect commentRect = new Rect(position.x, y, position.width, commentHeight);
 
@@ -358,13 +358,11 @@ public class BoltsCommentDrawer : PropertyDrawer
         Rect fieldRect = new Rect(position.x, y + commentHeight + 2, position.width, fieldHeight);
         EditorGUI.PropertyField(fieldRect, property, label, true);
 
-        EditorGUILayout.Space(20);
+        EditorGUILayout.Space(comment.space);
     }
 
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
-        BoltsCommentAttribute comment = (BoltsCommentAttribute)attribute;
-
         float commentHeight = EditorGUIUtility.singleLineHeight * 1.3f;
         float fieldHeight = EditorGUI.GetPropertyHeight(property, label, true);
 
@@ -448,7 +446,7 @@ public class BoltsShaderPropertyDrawer : PropertyDrawer
             return;
         }
 
-        var matProp = property.serializedObject.FindProperty(attr.materialField);
+        var matProp = FindSiblingProperty(property, attr.materialField);
 
         if (matProp == null || matProp.objectReferenceValue == null)
         {
@@ -488,5 +486,36 @@ public class BoltsShaderPropertyDrawer : PropertyDrawer
         property.stringValue = propNames[newIndex];
 
         EditorGUI.EndProperty();
+    }
+
+    private static SerializedProperty FindSiblingProperty(SerializedProperty property, string siblingName)
+    {
+        var direct = property.FindPropertyRelative(siblingName);
+
+        if (direct != null)
+            return direct;
+
+        string path = property.propertyPath;
+        int lastDot = path.LastIndexOf(".");
+
+        if (lastDot < 0)
+            return property.serializedObject.FindProperty(siblingName);
+
+        string parentPath = path.Substring(0, lastDot);
+        var parent = property.serializedObject.FindProperty(parentPath);
+
+        if (parent == null)
+            return null;
+
+        return parent.FindPropertyRelative(siblingName);
+    }
+}
+
+public class OpenDocuments
+{
+    [MenuItem("Tools/Bolts Tools/Documentation")]
+    public static void OpenURL()
+    {
+        Application.OpenURL("https://docs.google.com/document/d/1xaQ9wJ4AUBwIX4THLpGPQA2GjIwiSZUjYudO5D1CTm8/edit?usp=sharing");
     }
 }

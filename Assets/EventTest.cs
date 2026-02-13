@@ -4,27 +4,18 @@ using UnityEngine;
 
 public class EventTest : MonoBehaviour
 {
-    public BoltsEvent test = new BoltsEvent();
+    [BoltsComment("This Is A Comment With More Space", 50)]
+    public string commentShowcase = "There Is A Comment Above Me :)";
 
-    public void tesfdt()
+    [BoltsComment("This Is A Comment")]
+    public string commentShowcase2 = "There Is A Comment Above Me :)";
+
+    public string normalString = "This IS A Normal String";
+
+    public BoltsEvent eventTest = new BoltsEvent();
+
+    public void TestEvent()
     {
         print("YEAH!");
-    }
-
-    public void uisg(float testjf, bool jfdk)
-    {
-        print(testjf + "    " + jfdk);
-    }
-
-    [Button]
-    void TestEvent()
-    {
-        test.Invoke();
-    }
-
-    [Button]
-    void AddRuntimeListener()
-    {
-        test.AddListener(() => uisg(50, false));
     }
 }

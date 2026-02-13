@@ -163,8 +163,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fa0562080788004496eeece2a01e4d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  test:
-    persistentListeners: []
+  commentShowcase: There Is A Comment Above Me :)
+  commentShowcase2: There Is A Comment Above Me :)
+  normalString: This IS A Normal String
+  eventTest:
+    persistentListeners:
+    - targetGameObject: {fileID: 134869852}
+      targetComponent: {fileID: 134869855}
+      methodName: TestEvent
+      parameters: []
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
