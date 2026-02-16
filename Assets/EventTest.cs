@@ -14,6 +14,8 @@ public class EventTest : MonoBehaviour
 
     public BoltsEvent eventTest = new BoltsEvent();
 
+    public bool test;
+
     public void TestEvent()
     {
         print("YEAH!");

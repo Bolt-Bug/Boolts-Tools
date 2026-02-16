@@ -19,7 +19,7 @@ public class BoltsSaveSettings : ScriptedImporter
 
             foreach (string line in lines)
             {
-                if (line.StartsWith("fileName"))
+                if (line.StartsWith("saveFileName"))
                     config.fileName = line.Split("=")[1];
                 else if (line.StartsWith("usePersistentDataPath"))
                     config.usePersistentDataPath = bool.Parse(line.Split("=")[1]);
