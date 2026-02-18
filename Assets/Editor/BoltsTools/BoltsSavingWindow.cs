@@ -22,7 +22,7 @@ public class BoltsSavingWindow : EditorWindow
         BoltsSavingWindow window = GetWindow<BoltsSavingWindow>(true,"Save Settings Window", true);
         
         window.minSize = new(400, 400);
-        window.maxSize = new(400, 400);
+        window.maxSize = new(400, 1000);
     }
 
     void OnEnable()
