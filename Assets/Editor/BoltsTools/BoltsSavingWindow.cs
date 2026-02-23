@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
 
 public class BoltsSavingWindow : EditorWindow
@@ -12,7 +11,7 @@ public class BoltsSavingWindow : EditorWindow
 
     string jsonFilePath;
     SaveData sd;
-    const string ConfigPath = "Assets/BoltsTools/SaveSettings.savecfg";
+    const string ConfigPath = "Assets/Resources/BoltsSave/SaveSettings.savecfg";
 
     [MenuItem("Tools/Bolts Tools/Save Settings")]
     static void ShowWindow()
@@ -30,7 +29,18 @@ public class BoltsSavingWindow : EditorWindow
 
     void LoadConfig()
     {
-        config = AssetDatabase.LoadAssetAtPath<SavingConfigAsset>(ConfigPath);
+        config = ScriptableObject.CreateInstance<SavingConfigAsset>();
+        
+        string[] settingsFile = File.ReadAllLines("Assets/Resources/SaveSettings.savecfg");
+        foreach (string line in settingsFile)
+        {
+            if (line.StartsWith("saveFileName"))
+                config.fileName = line.Split("=")[1];
+            else if (line.StartsWith("usePersistentDataPath"))
+                config.usePersistentDataPath = bool.Parse(line.Split("=")[1]);
+            else if (line.StartsWith("useEncryption"))
+                config.useEncryption = bool.Parse(line.Split("=")[1]);
+        }
 
         if (config != null)
         {

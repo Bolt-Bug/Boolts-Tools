@@ -1,10 +1,7 @@
-using System;
 using System.IO;
 using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
-using System.Reflection;
-using Object = UnityEngine.Object;
 
 [ScriptedImporter(1, "savecfg")]
 public class BoltsSaveSettings : ScriptedImporter

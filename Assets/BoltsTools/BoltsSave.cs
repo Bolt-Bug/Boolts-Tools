@@ -2,13 +2,11 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
-using NaughtyAttributes;
 using UnityEditor;
-using UnityEngine.AddressableAssets;
 
 public class BoltsSave
 {
-    private const string SETTINGS_ADDRESS = "Save Settings";
+    private const string SETTINGS_ADDRESS = "SaveSettings.savecfg";
     public static SavingConfigAsset _settings;
     private static bool _isLoading;
 
@@ -252,20 +250,20 @@ public class BoltsSave
         Debug.LogError($"Could Not Find Class Named: {name}");
         return null;
     }
-
+    
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    public static async void Initialize()
+    public static void Initialize()
     {
         if(_settings != null || _isLoading)
             return;
 
         _isLoading = true;
 
-        await Addressables.InitializeAsync().Task;
-        _settings = await Addressables.LoadAssetAsync<SavingConfigAsset>(SETTINGS_ADDRESS).Task;
+        _settings = Resources.Load<SavingConfigAsset>("SaveSettings");
 
+        
         if(_settings == null)
-            Debug.LogError($"SaveSettings failed to load. Check Addressables address: {SETTINGS_ADDRESS}");
+            Debug.LogError($"SaveSettings failed to load. Check Resources path: {SETTINGS_ADDRESS}");
         else
             Debug.Log("SaveSettings loaded.");
 
@@ -274,7 +272,7 @@ public class BoltsSave
 
     public static SaveData LoadOrCreate()
     {
-        var fullPath = _settings.GetFullPath();
+        var fullPath = _settings.path;
         Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
 
         SaveData sd = new();
