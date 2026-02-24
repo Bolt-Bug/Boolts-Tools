@@ -287,11 +287,65 @@ public class BoltsSaveAttributeDrawer : PropertyDrawer
     }
 }
 
+[CustomEditor(typeof(BoltsBoxCollider))]
+public class BoltsBoxColliderDrawer : Editor
+{
+    private Editor boxColliderEditor;
+
+    public override void OnInspectorGUI()
+    {
+        BoltsBoxCollider customBC = (BoltsBoxCollider)target;
+
+        DrawDefaultInspector();
+        
+        SerializedProperty px = serializedObject.FindProperty("px");
+        SerializedProperty py = serializedObject.FindProperty("py");
+        SerializedProperty pz = serializedObject.FindProperty("pz");
+        SerializedProperty nx = serializedObject.FindProperty("nx");
+        SerializedProperty ny = serializedObject.FindProperty("ny");
+        SerializedProperty nz = serializedObject.FindProperty("nz");
+
+        EditorGUILayout.BeginHorizontal();
+        px.boolValue = EditorGUILayout.ToggleLeft("+X", px.boolValue, GUILayout.Width(40));
+        py.boolValue = EditorGUILayout.ToggleLeft("+Y", py.boolValue, GUILayout.Width(40));
+        pz.boolValue = EditorGUILayout.ToggleLeft("+Z", pz.boolValue, GUILayout.Width(40));
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.BeginHorizontal();
+        nx.boolValue = EditorGUILayout.ToggleLeft("-X", nx.boolValue, GUILayout.Width(40));
+        ny.boolValue = EditorGUILayout.ToggleLeft("-Y", ny.boolValue, GUILayout.Width(40));
+        nz.boolValue = EditorGUILayout.ToggleLeft("-Z", nz.boolValue, GUILayout.Width(40));
+        EditorGUILayout.EndHorizontal();
+
+        serializedObject.ApplyModifiedProperties();
+        
+        if(GUILayout.Button("Set Bounds"))
+            customBC.SetBounds();
+        
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Box Collider Settings", EditorStyles.boldLabel);
+
+        if (customBC.boxCollider != null)
+        {
+            if (boxColliderEditor == null)
+                boxColliderEditor = Editor.CreateEditor(customBC.boxCollider);
+
+            boxColliderEditor.DrawDefaultInspector();
+        }
+    }
+
+    private void OnDisable()
+    {
+        if(boxColliderEditor != null)
+            DestroyImmediate(boxColliderEditor);
+    }
+}
+
 public class OpenDocuments
 {
     [MenuItem("Tools/Bolts Tools/Documentation")]
     public static void OpenURL()
     {
-        Application.OpenURL("https://docs.google.com/document/d/1xaQ9wJ4AUBwIX4THLpGPQA2GjIwiSZUjYudO5D1CTm8/edit?usp=sharing");
+        Application.OpenURL("https://github.com/Bolt-Bug/Boolts-Tools");
     }
 }

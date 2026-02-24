@@ -397,3 +397,129 @@ public class TakeScreenshot : EditorWindow
         }
     }
 }
+
+public class BatchRenamer : EditorWindow
+{
+    private string objNames = "Name";
+    private bool addIndex;
+
+    private List<Object> selectedObj = new();
+    
+    [MenuItem("Tools/Bolts Tools/Small Tools/BatchRename")]
+    public static void OpenWindow()
+    {
+        GetWindow<BatchRenamer>();
+    }
+
+    private void OnGUI()
+    {
+        objNames = EditorGUILayout.TextField("Objects Names", objNames);
+
+        string tooltip = "Will Add ObjName 1, ObjName 2, etc";
+        addIndex = EditorGUILayout.Toggle(new GUIContent("Add Index To Name", tooltip), addIndex);
+
+        if (GUILayout.Button("Rename All Objects"))
+        {
+            selectedObj = Selection.objects.ToList();
+
+            Undo.SetCurrentGroupName("Renamed Objects");
+            int undoGroup = Undo.GetCurrentGroup();
+            
+            for (int i = selectedObj.Count - 1; i > -1; i--)
+            {
+                string finalName = objNames + (addIndex && i > 0 ? $" ({i})" : "");
+                string oldName = selectedObj[i].GameObject().name;
+                selectedObj[i].GameObject().name = finalName;
+                
+                Undo.RegisterCompleteObjectUndo(selectedObj[i], "Renamed " + oldName);
+            }
+            
+            Undo.CollapseUndoOperations(undoGroup);
+        }
+    }
+}
+
+public class MakeScriptableObject : EditorWindow
+{
+    private List<Type> soTypes = new();
+    private string[] typesNames;
+    private int selectedIndex;
+    private string assetName;
+    
+    [MenuItem("Tools/Bolts Tools/Small Tools/ Make SO")]
+    public static void OpenWindow()
+    {
+        GetWindow<MakeScriptableObject>();
+    }
+
+    private void OnGUI()
+    {
+        if (soTypes.Count == 0)
+        {
+            EditorGUILayout.HelpBox("No ScriptableObject Types Found In Project", MessageType.Info);
+            if(GUILayout.Button("Refresh")) RefreshTypes();
+            return;
+        }
+
+        EditorGUILayout.BeginHorizontal();
+        GUILayout.Label("Type", GUILayout.Width(40));
+        selectedIndex = EditorGUILayout.Popup(selectedIndex, typesNames);
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.Space();
+
+        assetName = EditorGUILayout.TextField("Asset Name", assetName);
+
+        EditorGUILayout.Space();
+
+        if (GUILayout.Button("Create Scriptable Object", GUILayout.Height(30)))
+            CreateAsset(soTypes[selectedIndex]);
+        
+        EditorGUILayout.Space();
+        
+        if(GUILayout.Button("Refresh Types"))
+            RefreshTypes();
+
+        EditorGUILayout.Space();
+        EditorGUILayout.HelpBox($"{soTypes.Count} Types Found.", MessageType.None);
+    }
+
+    void RefreshTypes()
+    {
+        soTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes()).Where(t =>
+                t.IsSubclassOf(typeof(ScriptableObject))
+                && !t.IsAbstract
+                && !t.Namespace?.StartsWith("Unity") == true
+                && !t.Namespace?.StartsWith("TMPro") == true
+                && !t.Namespace?.StartsWith("SavingConfigAsset") == true)
+            .OrderBy(t => t.Name)
+            .ToList();
+
+        typesNames = soTypes.Select(t => t.FullName.Replace(".", "/")).ToArray();
+
+        if (selectedIndex >= soTypes.Count)
+            selectedIndex = 0;
+    }
+
+    void CreateAsset(Type type)
+    {
+        var asset = CreateInstance(type);
+
+        string path = EditorUtility.SaveFilePanelInProject("Save Scriptable Object",
+            assetName,
+            "asset",
+            "Choose where to save the asset"
+        );
+        
+        if(string.IsNullOrEmpty(path)) return;
+        
+        AssetDatabase.CreateAsset(asset, path);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        
+        EditorUtility.FocusProjectWindow();
+        Selection.activeObject = asset;
+        
+        Debug.Log($"Created {type.Name} At {path}");
+    }
+}
