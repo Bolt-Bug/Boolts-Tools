@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public enum SavedVariableType {Any, Float, Int, String, Bool, Class}
+public enum SavedVariableType {Any, Float, Int, Vector3, Vector2, String, Bool, Class}
 
 public class BoltsSaveAttribute : PropertyAttribute
 {

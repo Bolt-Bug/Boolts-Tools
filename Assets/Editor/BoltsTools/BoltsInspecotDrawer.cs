@@ -271,6 +271,14 @@ public class BoltsSaveAttributeDrawer : PropertyDrawer
             foreach(var item in sd.ints)
                 names.Add(item.name);
         
+        if((filter == SavedVariableType.Any || filter == SavedVariableType.Vector3) && sd.Vector3s != null)
+            foreach(var item in sd.Vector3s)
+                names.Add(item.name);
+        
+        if((filter == SavedVariableType.Any || filter == SavedVariableType.Vector2) && sd.Vector2s != null)
+            foreach(var item in sd.Vector2s)
+                names.Add(item.name);
+        
         if((filter == SavedVariableType.Any || filter == SavedVariableType.Bool) && sd.bools != null)
             foreach(var item in sd.bools)
                 names.Add(item.name);

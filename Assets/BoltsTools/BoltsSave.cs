@@ -68,6 +68,58 @@ public class BoltsSave
         SaveFile(sd);
     }
 
+    public static void SaveVector3Value(string name, Vector3 value)
+    {
+        SaveData sd = LoadOrCreate();
+
+        if (_settings == null)
+        {
+            Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+
+            return;
+        }
+
+        SaveVector3 sv = new() { name = name, value = value };
+
+        int index = -1;
+        
+        if(sd.Vector3s != null)
+            index = sd.Vector3s.FindIndex(x => x.name == name);
+
+        if (index > -1)
+            sd.Vector3s[index].value = value;
+        else
+            sd.Vector3s.Add(sv);
+        
+        SaveFile(sd);
+    }
+    
+    public static void SaveVector2Value(string name, Vector2 value)
+    {
+        SaveData sd = LoadOrCreate();
+
+        if (_settings == null)
+        {
+            Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+
+            return;
+        }
+
+        SaveVector2 sv = new() { name = name, value = value };
+
+        int index = -1;
+        
+        if(sd.Vector2s != null)
+            index = sd.Vector2s.FindIndex(x => x.name == name);
+
+        if (index > -1)
+            sd.Vector2s[index].value = value;
+        else
+            sd.Vector2s.Add(sv);
+        
+        SaveFile(sd);
+    }
+
     public static void SaveStringValue(string name, string value)
     {
         SaveData sd = LoadOrCreate();
@@ -192,6 +244,52 @@ public class BoltsSave
         return -1;
     }
 
+    public static Vector3 GetVector3(string name)
+    {
+        SaveData sd = LoadOrCreate();
+
+        if (_settings == null)
+        {
+            Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+
+            return Vector3.zero;
+        }
+        
+        int index = -1;
+        
+        if(sd.Vector3s != null)
+            index = sd.Vector3s.FindIndex(x => x.name == name);
+
+        if (index > -1)
+            return sd.Vector3s[index].value;
+        
+        Debug.LogError($"Could Not Find Vector3 Named: {name}");
+        return Vector3.zero;
+    }
+    
+    public static Vector2 GetVector2(string name)
+    {
+        SaveData sd = LoadOrCreate();
+
+        if (_settings == null)
+        {
+            Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+
+            return Vector2.zero;
+        }
+        
+        int index = -1;
+        
+        if(sd.Vector2s != null)
+            index = sd.Vector2s.FindIndex(x => x.name == name);
+
+        if (index > -1)
+            return sd.Vector2s[index].value;
+        
+        Debug.LogError($"Could Not Find Vector2 Named: {name}");
+        return Vector2.zero;
+    }
+
     public static string GetString(string name)
     {
         SaveData sd = LoadOrCreate();
@@ -295,6 +393,8 @@ public class SaveData
 {
     public List<SaveFloat> floats;
     public List<SaveInt> ints;
+    public List<SaveVector3> Vector3s;
+    public List<SaveVector2> Vector2s;
     public List<SaveString> strings;
     public List<SaveBool> bools;
     public List<SaveClass> classes;
@@ -312,6 +412,20 @@ public class SaveInt
 {
     public string name;
     public int value;
+}
+
+[Serializable]
+public class SaveVector3
+{
+    public string name;
+    public Vector3 value;
+}
+
+[Serializable]
+public class SaveVector2
+{
+    public string name;
+    public Vector2 value;
 }
 
 [Serializable]
