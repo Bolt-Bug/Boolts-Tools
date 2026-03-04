@@ -2,13 +2,13 @@
 
 This is a colection of the tools ive made for unity
 
-Download It [Here]https://github.com/Bolt-Bug/Boolts-Tools/releases)
+Download It [Here](https://github.com/Bolt-Bug/Boolts-Tools/releases)
 
 Read The Documentation [Here](https://github.com/Bolt-Bug/Boolts-Tools/wiki)
 
 ## Installation
 
-### From The Unity Asset Store
+### From The Unity Asset Store (Recomended)
 * To Start Go To The [Unity Asset Store]() And Click `Add To my Assets`
 * Then In Unity Open the `Package Manager` Window
 * Look For `Bolts Tools`
