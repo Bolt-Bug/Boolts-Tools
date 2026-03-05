@@ -340,7 +340,7 @@ public class BoltsSave
             return null;
         }
 
-        int index = sd.bools.FindIndex(x => x.name == name);
+        int index = sd.classes.FindIndex(x => x.name == name);
 
         if (index > -1)
             return JsonUtility.FromJson<T>(sd.classes[index].value);
@@ -370,7 +370,7 @@ public class BoltsSave
 
     public static SaveData LoadOrCreate()
     {
-        var fullPath = _settings.path;
+        var fullPath = _settings.GetFullPath();
         Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
 
         SaveData sd = new();

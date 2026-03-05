@@ -11,7 +11,7 @@ public class BoltsSavingWindow : EditorWindow
 
     string jsonFilePath;
     SaveData sd;
-    const string ConfigPath = "Assets/Resources/BoltsSave/SaveSettings.savecfg";
+    const string ConfigPath = "Assets/Resources/SaveSettings.savecfg";
 
     [MenuItem("Tools/Bolts Tools/Save Settings")]
     static void ShowWindow()
@@ -214,6 +214,46 @@ public class BoltsSavingWindow : EditorWindow
                 EditorGUILayout.Space(5);
         }
 
+        // Display And Edit Vector3
+        if (sd.Vector3s is { Count: > 0 })
+        {
+            EditorGUILayout.LabelField("Vector3s:", EditorStyles.boldLabel);
+            for (int i = 0; i < sd.Vector3s.Count; i++)
+            {
+                EditorGUILayout.BeginHorizontal();
+                GUIContent vectorLabel = new GUIContent(sd.Vector3s[i].name);
+                sd.Vector3s[i].value = EditorGUILayout.Vector3Field(vectorLabel, sd.Vector3s[i].value);
+
+                if (GUILayout.Button("X", GUILayout.Width(25)))
+                {
+                    sd.Vector3s.RemoveAt(i);
+                    needSave = true;
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+            EditorGUILayout.Space(5);
+        }
+        
+        // Display And Edit Vector2
+        if (sd.Vector2s is { Count: > 0 })
+        {
+            EditorGUILayout.LabelField("Vector2s:", EditorStyles.boldLabel);
+            for (int i = 0; i < sd.Vector2s.Count; i++)
+            {
+                EditorGUILayout.BeginHorizontal();
+                GUIContent vectorLabel = new GUIContent(sd.Vector2s[i].name);
+                sd.Vector3s[i].value = EditorGUILayout.Vector2Field(vectorLabel, sd.Vector2s[i].value);
+
+                if (GUILayout.Button("X", GUILayout.Width(25)))
+                {
+                    sd.Vector2s.RemoveAt(i);
+                    needSave = true;
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+            EditorGUILayout.Space(5);
+        }
+        
         // Display and edit Strings
         if (sd.strings is { Count: > 0 })
         {
