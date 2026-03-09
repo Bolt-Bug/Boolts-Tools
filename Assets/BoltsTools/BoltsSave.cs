@@ -4,447 +4,450 @@ using UnityEngine;
 using System.IO;
 using UnityEditor;
 
-public class BoltsSave
+namespace BoltsTools
 {
-    private const string SETTINGS_ADDRESS = "SaveSettings.savecfg";
-    public static SavingConfigAsset _settings;
-    private static bool _isLoading;
-
-    #if UNITY_EDITOR
-    [InitializeOnLoadMethod]
-    static void InitializeInEditor()
+    public class BoltsSave
     {
-        Initialize();
-    }
-    #endif
+        private const string SETTINGS_ADDRESS = "SaveSettings.savecfg";
+        public static SavingConfigAsset _settings;
+        private static bool _isLoading;
 
-    public static void SaveFloatValue(string name, float value)
-    {
-        SaveData sd = LoadOrCreate();
-
-        if (_settings == null)
+#if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+        static void InitializeInEditor()
         {
-            Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+            Initialize();
+        }
+#endif
 
-            return;
+        public static void SaveFloatValue(string name, float value)
+        {
+            SaveData sd = LoadOrCreate();
+
+            if (_settings == null)
+            {
+                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+
+                return;
+            }
+
+            SaveFloat sf = new() { name = name, value = value };
+
+            int index = -1;
+            if (sd.floats != null)
+                index = sd.floats.FindIndex(x => x.name == name);
+
+            if (index > -1)
+                sd.floats[index].value = value;
+            else
+                sd.floats.Add(sf);
+
+            SaveFile(sd);
         }
 
-        SaveFloat sf = new() { name = name, value = value };
-
-        int index = -1;
-        if(sd.floats != null)
-            index = sd.floats.FindIndex(x => x.name == name);
-
-        if (index > -1)
-            sd.floats[index].value = value;
-        else
-            sd.floats.Add(sf);
-
-        SaveFile(sd);
-    }
-
-    public static void SaveIntValue(string name, int value)
-    {
-        SaveData sd = LoadOrCreate();
-
-        if (_settings == null)
+        public static void SaveIntValue(string name, int value)
         {
-            Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+            SaveData sd = LoadOrCreate();
 
-            return;
+            if (_settings == null)
+            {
+                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+
+                return;
+            }
+
+            SaveInt si = new() { name = name, value = value };
+
+            int index = -1;
+            if (sd.ints != null)
+                index = sd.ints.FindIndex(x => x.name == name);
+
+            if (index > -1)
+                sd.ints[index].value = value;
+            else
+                sd.ints.Add(si);
+
+            SaveFile(sd);
         }
 
-        SaveInt si = new() { name = name, value = value };
-
-        int index = -1;
-        if(sd.ints != null)
-            index = sd.ints.FindIndex(x => x.name == name);
-
-        if (index > -1)
-            sd.ints[index].value = value;
-        else
-            sd.ints.Add(si);
-
-        SaveFile(sd);
-    }
-
-    public static void SaveVector3Value(string name, Vector3 value)
-    {
-        SaveData sd = LoadOrCreate();
-
-        if (_settings == null)
+        public static void SaveVector3Value(string name, Vector3 value)
         {
-            Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+            SaveData sd = LoadOrCreate();
 
-            return;
+            if (_settings == null)
+            {
+                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+
+                return;
+            }
+
+            SaveVector3 sv = new() { name = name, value = value };
+
+            int index = -1;
+
+            if (sd.Vector3s != null)
+                index = sd.Vector3s.FindIndex(x => x.name == name);
+
+            if (index > -1)
+                sd.Vector3s[index].value = value;
+            else
+                sd.Vector3s.Add(sv);
+
+            SaveFile(sd);
         }
 
-        SaveVector3 sv = new() { name = name, value = value };
-
-        int index = -1;
-        
-        if(sd.Vector3s != null)
-            index = sd.Vector3s.FindIndex(x => x.name == name);
-
-        if (index > -1)
-            sd.Vector3s[index].value = value;
-        else
-            sd.Vector3s.Add(sv);
-        
-        SaveFile(sd);
-    }
-    
-    public static void SaveVector2Value(string name, Vector2 value)
-    {
-        SaveData sd = LoadOrCreate();
-
-        if (_settings == null)
+        public static void SaveVector2Value(string name, Vector2 value)
         {
-            Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+            SaveData sd = LoadOrCreate();
 
-            return;
+            if (_settings == null)
+            {
+                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+
+                return;
+            }
+
+            SaveVector2 sv = new() { name = name, value = value };
+
+            int index = -1;
+
+            if (sd.Vector2s != null)
+                index = sd.Vector2s.FindIndex(x => x.name == name);
+
+            if (index > -1)
+                sd.Vector2s[index].value = value;
+            else
+                sd.Vector2s.Add(sv);
+
+            SaveFile(sd);
         }
 
-        SaveVector2 sv = new() { name = name, value = value };
-
-        int index = -1;
-        
-        if(sd.Vector2s != null)
-            index = sd.Vector2s.FindIndex(x => x.name == name);
-
-        if (index > -1)
-            sd.Vector2s[index].value = value;
-        else
-            sd.Vector2s.Add(sv);
-        
-        SaveFile(sd);
-    }
-
-    public static void SaveStringValue(string name, string value)
-    {
-        SaveData sd = LoadOrCreate();
-
-        if (_settings == null)
+        public static void SaveStringValue(string name, string value)
         {
-            Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+            SaveData sd = LoadOrCreate();
 
-            return;
+            if (_settings == null)
+            {
+                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+
+                return;
+            }
+
+            SaveString ss = new() { name = name, value = value };
+
+            int index = -1;
+            if (sd.strings != null)
+                index = sd.strings.FindIndex(x => x.name == name);
+
+            if (index > -1)
+                sd.strings[index].value = value;
+            else
+                sd.strings.Add(ss);
+
+            SaveFile(sd);
         }
 
-        SaveString ss = new() { name = name, value = value };
-
-        int index = -1;
-        if(sd.strings != null)
-            index = sd.strings.FindIndex(x => x.name == name);
-
-        if (index > -1)
-            sd.strings[index].value = value;
-        else
-            sd.strings.Add(ss);
-
-        SaveFile(sd);
-    }
-
-    public static void SaveBoolValue(string name, bool value)
-    {
-        if (_settings == null)
+        public static void SaveBoolValue(string name, bool value)
         {
-            Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+            if (_settings == null)
+            {
+                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
 
-            return;
+                return;
+            }
+
+            SaveData sd = LoadOrCreate();
+
+            SaveBool sb = new() { name = name, value = value };
+
+            int index = -1;
+            if (sd.bools != null)
+                index = sd.bools.FindIndex(x => x.name == name);
+
+            if (index > -1)
+                sd.bools[index].value = value;
+            else
+                sd.bools.Add(sb);
+
+            SaveFile(sd);
         }
 
-        SaveData sd = LoadOrCreate();
-
-        SaveBool sb = new() { name = name, value = value };
-
-        int index = -1;
-        if(sd.bools != null)
-            index = sd.bools.FindIndex(x => x.name == name);
-        
-        if (index > -1)
-            sd.bools[index].value = value;
-        else
-            sd.bools.Add(sb);
-
-        SaveFile(sd);
-    }
-
-    public static void SaveClassVariable<T>(string name, T classInstance) where T : class
-    {
-        SaveData sd = LoadOrCreate();
-
-        if (_settings == null)
+        public static void SaveClassVariable<T>(string name, T classInstance) where T : class
         {
-            Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+            SaveData sd = LoadOrCreate();
 
-            return;
+            if (_settings == null)
+            {
+                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+
+                return;
+            }
+
+            SaveClass sc = new SaveClass() { name = name, value = JsonUtility.ToJson(classInstance) };
+
+            int index = -1;
+
+            if (sd.classes != null)
+                index = sd.classes.FindIndex(x => x.name == name);
+
+            if (index > -1)
+                sd.classes[index].value = JsonUtility.ToJson(classInstance);
+            else
+                sd.classes.Add(sc);
+
+            SaveFile(sd);
         }
 
-        SaveClass sc = new SaveClass() { name = name, value = JsonUtility.ToJson(classInstance) };
-
-        int index = -1;
-        
-        if(sd.classes != null)
-            index = sd.classes.FindIndex(x => x.name == name);
-        
-        if (index > -1)
-            sd.classes[index].value = JsonUtility.ToJson(classInstance);
-        else
-            sd.classes.Add(sc);
-
-        SaveFile(sd);
-    }
-
-    public static void SaveFile(SaveData sd)
-    {
-        string fullPath = _settings.GetFullPath();
-
-        string newJson = JsonUtility.ToJson(sd, _settings.useEncryption);
-        File.WriteAllText(fullPath, newJson);
-    }
-
-    public float GetFloat(string name)
-    {
-        SaveData sd = LoadOrCreate();
-
-        if (_settings == null)
+        public static void SaveFile(SaveData sd)
         {
-            Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+            string fullPath = _settings.GetFullPath();
 
+            string newJson = JsonUtility.ToJson(sd, _settings.useEncryption);
+            File.WriteAllText(fullPath, newJson);
+        }
+
+        public float GetFloat(string name)
+        {
+            SaveData sd = LoadOrCreate();
+
+            if (_settings == null)
+            {
+                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+
+                return -1;
+            }
+
+            int index = sd.floats.FindIndex(x => x.name == name);
+
+            if (index > -1)
+                return sd.floats[index].value;
+
+            Debug.LogError($"Could Not Find Float Named: {name}");
             return -1;
         }
 
-        int index = sd.floats.FindIndex(x => x.name == name);
-
-        if (index > -1)
-            return sd.floats[index].value;
-
-        Debug.LogError($"Could Not Find Float Named: {name}");
-        return -1;
-    }
-
-    public int GetInt(string name)
-    {
-        SaveData sd = LoadOrCreate();
-
-        if (_settings == null)
+        public int GetInt(string name)
         {
-            Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+            SaveData sd = LoadOrCreate();
 
+            if (_settings == null)
+            {
+                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+
+                return -1;
+            }
+
+            int index = sd.ints.FindIndex(x => x.name == name);
+
+            if (index > -1)
+                return sd.ints[index].value;
+
+            Debug.LogError($"Could Not Find Int Named: {name}");
             return -1;
         }
 
-        int index = sd.ints.FindIndex(x => x.name == name);
-
-        if (index > -1)
-            return sd.ints[index].value;
-
-        Debug.LogError($"Could Not Find Int Named: {name}");
-        return -1;
-    }
-
-    public static Vector3 GetVector3(string name)
-    {
-        SaveData sd = LoadOrCreate();
-
-        if (_settings == null)
+        public static Vector3 GetVector3(string name)
         {
-            Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+            SaveData sd = LoadOrCreate();
 
+            if (_settings == null)
+            {
+                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+
+                return Vector3.zero;
+            }
+
+            int index = sd.Vector3s.FindIndex(x => x.name == name);
+
+            if (index > -1)
+                return sd.Vector3s[index].value;
+
+            Debug.LogError($"Could Not Find Vector3 Named: {name}");
             return Vector3.zero;
         }
-        
-        int index = -1;
-        
-        if(sd.Vector3s != null)
-            index = sd.Vector3s.FindIndex(x => x.name == name);
 
-        if (index > -1)
-            return sd.Vector3s[index].value;
-        
-        Debug.LogError($"Could Not Find Vector3 Named: {name}");
-        return Vector3.zero;
-    }
-    
-    public static Vector2 GetVector2(string name)
-    {
-        SaveData sd = LoadOrCreate();
-
-        if (_settings == null)
+        public static Vector2 GetVector2(string name)
         {
-            Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+            SaveData sd = LoadOrCreate();
 
+            if (_settings == null)
+            {
+                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+
+                return Vector2.zero;
+            }
+
+            int index = sd.Vector2s.FindIndex(x => x.name == name);
+
+            if (index > -1)
+                return sd.Vector2s[index].value;
+
+            Debug.LogError($"Could Not Find Vector2 Named: {name}");
             return Vector2.zero;
         }
-        
-        int index = -1;
-        
-        if(sd.Vector2s != null)
-            index = sd.Vector2s.FindIndex(x => x.name == name);
 
-        if (index > -1)
-            return sd.Vector2s[index].value;
-        
-        Debug.LogError($"Could Not Find Vector2 Named: {name}");
-        return Vector2.zero;
-    }
-
-    public static string GetString(string name)
-    {
-        SaveData sd = LoadOrCreate();
-
-        if (_settings == null)
+        public static string GetString(string name)
         {
-            Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+            SaveData sd = LoadOrCreate();
 
+            if (_settings == null)
+            {
+                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+
+                return String.Empty;
+            }
+
+            int index = sd.strings.FindIndex(x => x.name == name);
+
+            if (index > -1)
+                return sd.strings[index].value;
+
+            Debug.LogError($"Could Not Find String Named: {name}");
             return String.Empty;
         }
 
-        int index = sd.strings.FindIndex(x => x.name == name);
-
-        if (index > -1)
-            return sd.strings[index].value;
-
-        Debug.LogError($"Could Not Find String Named: {name}");
-        return String.Empty;
-    }
-
-    public static bool GetBool(string name)
-    {
-        SaveData sd = LoadOrCreate();
-
-        if (_settings == null)
+        public static bool GetBool(string name)
         {
-            Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+            SaveData sd = LoadOrCreate();
 
+            if (_settings == null)
+            {
+                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+
+                return false;
+            }
+
+            int index = sd.bools.FindIndex(x => x.name == name);
+            if (index > -1)
+                return sd.bools[index].value;
+
+            Debug.LogError($"Could Not Find Bool Named: {name}");
             return false;
         }
 
-        int index = sd.bools.FindIndex(x => x.name == name);
-        if (index > -1)
-            return sd.bools[index].value;
-
-        Debug.LogError($"Could Not Find Bool Named: {name}");
-        return false;
-    }
-
-    public static T LoadClass<T>(string name) where T : class
-    {
-        SaveData sd = LoadOrCreate();
-
-        if (_settings == null)
+        public static T LoadClass<T>(string name) where T : class
         {
-            Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+            SaveData sd = LoadOrCreate();
 
+            if (_settings == null)
+            {
+                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+
+                return null;
+            }
+
+            int index = sd.classes.FindIndex(x => x.name == name);
+
+            if (index > -1)
+                return JsonUtility.FromJson<T>(sd.classes[index].value);
+
+            Debug.LogError($"Could Not Find Class Named: {name}");
             return null;
         }
 
-        int index = sd.classes.FindIndex(x => x.name == name);
-
-        if (index > -1)
-            return JsonUtility.FromJson<T>(sd.classes[index].value);
-
-        Debug.LogError($"Could Not Find Class Named: {name}");
-        return null;
-    }
-    
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    public static void Initialize()
-    {
-        if(_settings != null || _isLoading)
-            return;
-
-        _isLoading = true;
-
-        _settings = Resources.Load<SavingConfigAsset>("SaveSettings");
-
-        
-        if(_settings == null)
-            Debug.LogError($"SaveSettings failed to load. Check Resources path: {SETTINGS_ADDRESS}");
-        else
-            Debug.Log("SaveSettings loaded.");
-
-        _isLoading = false;
-    }
-
-    public static SaveData LoadOrCreate()
-    {
-        var fullPath = _settings.GetFullPath();
-        Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
-
-        SaveData sd = new();
-
-        if (!File.Exists(fullPath))
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        public static void Initialize()
         {
-            string newJsonFile = JsonUtility.ToJson(sd, _settings.useEncryption);
-            File.WriteAllText(fullPath, newJsonFile);
+            if (_settings != null || _isLoading)
+                return;
+
+            _isLoading = true;
+
+            _settings = Resources.Load<SavingConfigAsset>("SaveSettings");
+
+
+            if (_settings == null)
+                Debug.LogError($"SaveSettings failed to load. Check Resources path: {SETTINGS_ADDRESS}");
+            else
+                Debug.Log("SaveSettings loaded.");
+
+            _isLoading = false;
         }
 
-        string jsonFile = File.ReadAllText(fullPath);
-        sd = JsonUtility.FromJson<SaveData>(jsonFile);
+        public static SaveData LoadOrCreate()
+        {
+            var fullPath = _settings.GetFullPath();
+            Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
 
-        return sd;
+            SaveData sd = new();
+
+            if (!File.Exists(fullPath))
+            {
+                string newJsonFile = JsonUtility.ToJson(sd, _settings.useEncryption);
+                File.WriteAllText(fullPath, newJsonFile);
+            }
+
+            string jsonFile = File.ReadAllText(fullPath);
+            sd = JsonUtility.FromJson<SaveData>(jsonFile);
+
+            return sd;
+        }
+
+        public static void ResetSave()
+        {
+            SaveData newSD = new SaveData();
+            SaveFile(newSD);
+        }
     }
-}
 
-[Serializable]
-public class SaveData
-{
-    public List<SaveFloat> floats;
-    public List<SaveInt> ints;
-    public List<SaveVector3> Vector3s;
-    public List<SaveVector2> Vector2s;
-    public List<SaveString> strings;
-    public List<SaveBool> bools;
-    public List<SaveClass> classes;
-}
+    [Serializable]
+    public class SaveData
+    {
+        public List<SaveFloat> floats;
+        public List<SaveInt> ints;
+        public List<SaveVector3> Vector3s;
+        public List<SaveVector2> Vector2s;
+        public List<SaveString> strings;
+        public List<SaveBool> bools;
+        public List<SaveClass> classes;
+    }
 
-[Serializable]
-public class SaveFloat
-{
-    public string name;
-    public float value;
-}
+    [Serializable]
+    public class SaveFloat
+    {
+        public string name;
+        public float value;
+    }
 
-[Serializable]
-public class SaveInt
-{
-    public string name;
-    public int value;
-}
+    [Serializable]
+    public class SaveInt
+    {
+        public string name;
+        public int value;
+    }
 
-[Serializable]
-public class SaveVector3
-{
-    public string name;
-    public Vector3 value;
-}
+    [Serializable]
+    public class SaveVector3
+    {
+        public string name;
+        public Vector3 value;
+    }
 
-[Serializable]
-public class SaveVector2
-{
-    public string name;
-    public Vector2 value;
-}
+    [Serializable]
+    public class SaveVector2
+    {
+        public string name;
+        public Vector2 value;
+    }
 
-[Serializable]
-public class SaveString
-{
-    public string name;
-    public string value;
-}
+    [Serializable]
+    public class SaveString
+    {
+        public string name;
+        public string value;
+    }
 
-[Serializable]
-public class SaveBool
-{
-    public string name;
-    public bool value;
-}
+    [Serializable]
+    public class SaveBool
+    {
+        public string name;
+        public bool value;
+    }
 
-[Serializable]
-public class SaveClass
-{
-    public string name;
-    public string value;
+    [Serializable]
+    public class SaveClass
+    {
+        public string name;
+        public string value;
+    }
 }

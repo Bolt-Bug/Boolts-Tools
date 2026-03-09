@@ -1,3 +1,4 @@
+using System;
 using UnityEditor;
 using UnityEngine;
 
@@ -49,15 +50,13 @@ public class BoltsBoxCollider : MonoBehaviour
         boxCollider.size = min - max;
     }
     
-    private void OnValidate()
+    private void OnEnable()
     {
         if (boxCollider == null)
         {
             boxCollider = gameObject.GetComponent<BoxCollider>() == null ? gameObject.AddComponent<BoxCollider>() : 
                 gameObject.GetComponent<BoxCollider>();
         }
-        
-        boxCollider.hideFlags = HideFlags.HideInInspector;
     }
 
     private void Awake()
@@ -67,16 +66,13 @@ public class BoltsBoxCollider : MonoBehaviour
             boxCollider = gameObject.GetComponent<BoxCollider>() == null ? gameObject.AddComponent<BoxCollider>() : 
                 gameObject.GetComponent<BoxCollider>();
         }
-        
-        boxCollider.hideFlags = HideFlags.HideInInspector;
     }
 
     private void OnDestroy()
     {
-        foreach (BoxCollider bc in gameObject.GetComponents<BoxCollider>())
-        {
-            if(bc.hideFlags == HideFlags.HideInInspector)
-                DestroyImmediate(bc);
-        }
+        if(boxCollider == null) return;
+        if(!gameObject.scene.isLoaded) return;
+       
+        DestroyImmediate(boxCollider);
     }
 }

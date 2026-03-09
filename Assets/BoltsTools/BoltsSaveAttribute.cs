@@ -1,13 +1,16 @@
 using UnityEngine;
 
-public enum SavedVariableType {Any, Float, Int, Vector3, Vector2, String, Bool, Class}
-
-public class BoltsSaveAttribute : PropertyAttribute
+namespace BoltsTools
 {
-    public SavedVariableType filterType;
+    public enum SavedVariableType {Any, Float, Int, Vector3, Vector2, String, Bool, Class}
 
-    public BoltsSaveAttribute(SavedVariableType filterType = SavedVariableType.Any)
+    public class BoltsSaveAttribute : PropertyAttribute
     {
-        this.filterType = filterType;
+        public SavedVariableType filterType;
+
+        public BoltsSaveAttribute(SavedVariableType filterType = SavedVariableType.Any)
+        {
+            this.filterType = filterType;
+        }
     }
 }

@@ -1,11 +1,14 @@
 using UnityEngine;
 
-public class BoltsInputActionAttribute : PropertyAttribute
+namespace BoltsTools
 {
-    public string actionAssetField;
-
-    public BoltsInputActionAttribute(string actionAssetField)
+    public class BoltsInputActionAttribute : PropertyAttribute
     {
-        this.actionAssetField = actionAssetField;
+        public string actionAssetField;
+
+        public BoltsInputActionAttribute(string actionAssetField)
+        {
+            this.actionAssetField = actionAssetField;
+        }
     }
 }

@@ -1,11 +1,14 @@
 using UnityEngine;
 
-public class BoltsShaderPropertyAttribute : PropertyAttribute
+namespace BoltsTools
 {
-    public string materialField;
-
-    public BoltsShaderPropertyAttribute(string materialField)
+    public class BoltsShaderPropertyAttribute : PropertyAttribute
     {
-        this.materialField = materialField;
+        public string materialField;
+
+        public BoltsShaderPropertyAttribute(string materialField)
+        {
+            this.materialField = materialField;
+        }
     }
 }
