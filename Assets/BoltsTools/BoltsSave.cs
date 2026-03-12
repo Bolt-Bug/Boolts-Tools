@@ -8,9 +8,8 @@ namespace BoltsTools
 {
     public class BoltsSave
     {
-        private const string SETTINGS_ADDRESS = "SaveSettings.savecfg";
         public static SavingConfigAsset _settings;
-        private static bool _isLoading;
+        static bool _isLoading;
 
 #if UNITY_EDITOR
         [InitializeOnLoadMethod]
@@ -354,12 +353,8 @@ namespace BoltsTools
             _isLoading = true;
 
             _settings = Resources.Load<SavingConfigAsset>("SaveSettings");
-
-
-            if (_settings == null)
-                Debug.LogError($"SaveSettings failed to load. Check Resources path: {SETTINGS_ADDRESS}");
-            else
-                Debug.Log("SaveSettings loaded.");
+            
+            Debug.Log("Save Settings loaded.");
 
             _isLoading = false;
         }

@@ -1,15 +1,16 @@
 using System;
 using System.IO;
+using BoltsTools;
 using UnityEditor;
 using UnityEngine;
 
-namespace BoltsTools
+namespace Editor.BoltsTools
 {
     public class BoltsSavingWindow : EditorWindow
     {
         SavingConfigAsset config;
         SerializedObject serializedConfig;
-        private Vector2 scrollPos;
+        Vector2 scrollPos;
 
         string jsonFilePath;
         SaveData sd;
@@ -31,9 +32,9 @@ namespace BoltsTools
 
         void LoadConfig()
         {
-            config = ScriptableObject.CreateInstance<SavingConfigAsset>();
+            config = CreateInstance<SavingConfigAsset>();
 
-            string[] settingsFile = File.ReadAllLines("Assets/Resources/SaveSettings.savecfg");
+            string[] settingsFile = File.ReadAllLines(ConfigPath);
             foreach (string line in settingsFile)
             {
                 if (line.StartsWith("saveFileName"))
@@ -66,7 +67,7 @@ namespace BoltsTools
 
             if (config == null)
             {
-                EditorGUILayout.HelpBox($"Config file not found at:\n{ConfigPath}", MessageType.Error);
+                EditorGUILayout.HelpBox($"Config file not found at:{ConfigPath}", MessageType.Error);
 
                 if (GUILayout.Button("Reload"))
                 {
@@ -101,9 +102,7 @@ namespace BoltsTools
 
                     if (!File.Exists(sca.GetFullPath()))
                     {
-                        string path = EditorUtility.OpenFilePanel("Select JSON File", "Assets", "json");
-                        if (!string.IsNullOrEmpty(path))
-                            jsonFilePath = path;
+                        BoltsSave.LoadOrCreate();
                     }
 
                     jsonFilePath = sca.GetFullPath();
@@ -136,24 +135,24 @@ namespace BoltsTools
             EditorGUILayout.Space();
 
             if (GUILayout.Button("Save to File", GUILayout.Height(30)))
+            {
                 SaveToFile();
+                Debug.Log($"✓ Configuration saved");
+            }
         }
 
         void SaveToFile()
         {
             if (config == null) return;
-
-            string path = AssetDatabase.GetAssetPath(config);
-
-            using (StreamWriter writer = new StreamWriter(path))
+            
+            using (StreamWriter writer = new StreamWriter(ConfigPath))
             {
                 writer.WriteLine($"saveFileName={config.fileName}");
                 writer.WriteLine($"usePersistentDataPath={config.usePersistentDataPath}");
                 writer.WriteLine($"useEncryption={config.useEncryption}");
             }
 
-            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
-            Debug.Log($"✓ Configuration saved");
+            AssetDatabase.ImportAsset(ConfigPath, ImportAssetOptions.ForceUpdate);
         }
 
         void LoadSaveData()

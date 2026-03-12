@@ -1,0 +1,209 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEditor;
+
+namespace BoltsTools
+{
+    public class BoltsDebugMenu : MonoBehaviour
+    {
+        public static BoltsDebugMenu Instance;
+        
+        float frames = 0, time = 0;
+
+        bool showDebug;
+
+        static List<DebugText> textToShow = new();
+        static List<DebugButton> buttonsToShow = new();
+
+        public static Transform player;
+        
+        void OnGUI()
+        {
+            if(!showDebug) return;
+
+            if (LoadBoltsDebugMenu._settings.showPlayerPos && player != null)
+            {
+                Vector3 playerPos = player.position;
+                
+                GUIStyle style = new GUIStyle();
+                
+                style.font = Font.CreateDynamicFontFromOSFont("Courier New", 25);
+
+                string text = string.Format("XYZ: X:{0,-8:F2}  Y:{1,-8:F2}  Z:{2,-8:F2}", playerPos.x, playerPos.y,
+                    playerPos.z);
+                
+                float xPos = Screen.width - 600 - 100;
+                style.alignment = TextAnchor.MiddleRight;
+                
+                Rect playerPosRect = new(xPos, 100, 600, 200);
+                GUI.TextArea(playerPosRect, text, style);
+            }
+            
+            if (LoadBoltsDebugMenu._settings.showFPS)
+            {
+                Rect fpsRect = new(50, 50, 225,75);
+                GUI.TextArea(fpsRect, $"<size=50>FPS: {frames}", new GUIStyle(){alignment = TextAnchor.MiddleLeft});
+            }
+
+            for (int i = 0; i < textToShow.Count; i++)
+            {
+                DebugText currentText = textToShow[i];
+                if (currentText.size.y == 0)
+                    currentText.size.y = 100 * (i + 1);
+                
+                GUI.Box(currentText.size, currentText.value);
+            }
+
+            for (int i = 0; i < buttonsToShow.Count; i++)
+            {
+                DebugButton currentButton = buttonsToShow[i];
+
+                if (currentButton.size.y == 0)
+                    currentButton.size.y = 100 * (i + 1);
+                
+                float newXPos = Screen.width - currentButton.size.width - currentButton.size.x;
+                Rect newRect = currentButton.size;
+                newRect.x = newXPos;
+                
+                GUILayout.BeginArea(newRect);
+                if (GUILayout.Button(currentButton.value)) currentButton.onClick.Invoke();
+                GUILayout.EndArea();
+            }
+        }
+
+        /// <summary>
+        /// Add Text To The Debug Screen
+        /// </summary>
+        /// <param name="name">The Name Of The Text</param>
+        /// <param name="value">What The Text Should Say</param>
+        /// <param name="size">The Size And Position. Can Be Left Empty></param>
+        public static void BoltsDebugAddText(string name, string value, Rect size = new Rect())
+        {
+            int index = -1;
+            if (textToShow.Count > 0)
+                index = textToShow.FindIndex(x => x.textName == name);
+
+            Rect theSize = new Rect(0, 0, 100, 100);
+            if (size.x > 0 || size.y > 0)
+                theSize = size;
+            
+            if (index > -1)
+                textToShow[index].value = value;
+            else
+                textToShow.Add(new(){textName = name, value = value, size = theSize});
+        }
+
+        
+        /// <summary>
+        /// Add A Button To The Debug Screene
+        /// </summary>
+        /// <param name="name">The Name Of The Button</param>
+        /// <param name="value">What The Button Should Say</param>
+        /// <param name="onClick">What Actions To Do When Clicked</param>
+        /// <param name="size">The Size And Position. Can Be Left Empty></param>
+        public static void BoltsDebugAddButton(string name, string value, Action onClick, Rect size = new Rect())
+        {
+            int index = -1;
+            if (buttonsToShow.Count > 0)
+                index = textToShow.FindIndex(x => x.textName == name);
+
+            Rect theSize = new Rect(0, 0, 100, 100);
+            if (size.x > 0 || size.y > 0)
+                theSize = size;
+
+            if (index > -1)
+            {
+                buttonsToShow[index].value = value;
+                buttonsToShow[index].onClick = onClick;
+            }
+            else
+                buttonsToShow.Add(new(){textName = name, value = value, onClick = onClick, size = theSize});
+        }
+        
+        public static void UpdatePlayerOBJ(Transform newPlayer)
+        {
+            player = newPlayer;
+        }
+        
+        void Update()
+        {
+            frames = (float)Decimal.Round((decimal)(1 / Time.deltaTime));
+            time += Time.deltaTime;
+            if (time >= 1)
+            {
+                frames = 0;
+                time = 0;
+            }
+
+            if (Input.GetKeyDown(LoadBoltsDebugMenu._settings.keyToOpenDebug))
+                showDebug = !showDebug;
+
+            if (player == null && LoadBoltsDebugMenu._settings.showPlayerPos)
+                player = GameObject.FindGameObjectWithTag(LoadBoltsDebugMenu._settings.playerTag).transform;
+        }
+
+        void Awake()
+        {
+            if (Instance == null)
+                Instance = this;
+            else if(Instance != this)
+                Destroy(gameObject);
+        }
+    }
+
+    [Serializable]
+    class DebugText
+    {
+        public string textName;
+        public string value;
+
+        public Rect size = new Rect(100, 100, 100, 100);
+    }
+
+    [Serializable]
+    class DebugButton
+    {
+        public string textName;
+        public string value;
+
+        public Rect size = new Rect(100, 100, 100, 100);
+        
+        public Action onClick;
+    }
+    
+    class LoadBoltsDebugMenu
+    {
+        public static BoltsDebugMenuSettings _settings;
+        static bool _isLoading;
+        
+#if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+        static void InitializeInEditor()
+        {
+            Initialize();
+        }
+#endif
+        
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        public static void Initialize()
+        {
+            if(_settings != null || _isLoading)
+                return;
+
+            _isLoading = true;
+
+            _settings = Resources.Load<BoltsDebugMenuSettings>("DebugSettings");
+            Debug.Log("Debug Settings Loaded");
+
+            _isLoading = false;
+        }
+        
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        public static void SpawnObj()
+        {
+            if(BoltsDebugMenu.Instance == null)
+                new GameObject("Bolts Debug", new []{typeof(BoltsDebugMenu), typeof(BoltsCommands)});
+        }
+    }
+}

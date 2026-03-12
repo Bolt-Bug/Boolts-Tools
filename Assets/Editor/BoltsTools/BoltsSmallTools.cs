@@ -13,29 +13,29 @@ namespace BoltsTools
 {
     public class SpawnGrid : EditorWindow
     {
-        private Vector3Int gridSize = Vector3Int.one;
-        private Vector3 startPos;
-        private Vector3 posOffset;
-        private Vector3 rotation;
+        Vector3Int gridSize = Vector3Int.one;
+        Vector3 startPos;
+        Vector3 posOffset;
+        Vector3 rotation;
 
-        private UnityEngine.Object objectToSpawn;
-        private UnityEngine.Object parent;
-        private GameObject previewPos;
+        UnityEngine.Object objectToSpawn;
+        UnityEngine.Object parent;
+        GameObject previewPos;
 
-        private bool spawnList;
-        private bool spawnRandom;
-        private bool showPreviewPos = true;
-        private int seed;
+        bool spawnList;
+        bool spawnRandom;
+        bool showPreviewPos = true;
+        int seed;
 
-        private GameObjectList list;
-        private SerializedObject serializedData;
-        private SerializedProperty objectsProperty;
+        GameObjectList list;
+        SerializedObject serializedData;
+        SerializedProperty objectsProperty;
 
         // Not Seen In GUI
-        private bool showedList;
-        private string path = "Assets/Editor/BoltsTools/ObjectList.asset";
-        private bool showPreview;
-        private List<GameObject> previewList = new();
+        bool showedList;
+        string path = "Assets/Editor/BoltsTools/ObjectList.asset";
+        bool showPreview;
+        List<GameObject> previewList = new();
 
         [MenuItem("Tools/Bolts Tools/Small Tools/Grid Spawner")]
         static void SetWindow()
@@ -46,7 +46,7 @@ namespace BoltsTools
             window.maxSize = new(400, 1000);
         }
 
-        private void OnGUI()
+        void OnGUI()
         {
             spawnList = EditorGUILayout.Toggle("Spawn Multiple", spawnList);
 
@@ -207,7 +207,7 @@ namespace BoltsTools
             serializedData.ApplyModifiedProperties();
         }
 
-        private void Update()
+        void Update()
         {
             if (showPreviewPos)
             {
@@ -229,7 +229,7 @@ namespace BoltsTools
             }
         }
 
-        private void OnDestroy()
+        void OnDestroy()
         {
             if (AssetDatabase.AssetPathExists(path))
                 AssetDatabase.DeleteAsset(path);
@@ -243,7 +243,7 @@ namespace BoltsTools
 
     public class GameObjectList : ScriptableObject
     {
-        public List<UnityEngine.Object> gameObjects;
+        public List<Object> gameObjects;
     }
 
     public class SelectAllWithComponentOrName : EditorWindow
@@ -261,18 +261,18 @@ namespace BoltsTools
             GetWindow(typeof(SelectAllWithComponentOrName));
         }
 
-        private void OnEnable()
+        void OnEnable()
         {
             RefreshComponentList();
             EditorApplication.hierarchyChanged += RefreshComponentList;
         }
 
-        private void OnDisable()
+        void OnDisable()
         {
             EditorApplication.hierarchyChanged -= RefreshComponentList;
         }
 
-        private void OnGUI()
+        void OnGUI()
         {
             selectName = EditorGUILayout.Toggle("Select With Name", selectName);
 
@@ -361,8 +361,8 @@ namespace BoltsTools
 
     public class TakeScreenshot : EditorWindow
     {
-        private string path = "Assets";
-        private string fileName = "image";
+        string path = "Assets";
+        string fileName = "image";
 
         [MenuItem("Tools/Bolts Tools/Small Tools/Take Screenshot")]
         static void OpenWindow()
@@ -370,7 +370,7 @@ namespace BoltsTools
             GetWindow<TakeScreenshot>();
         }
 
-        private void OnGUI()
+        void OnGUI()
         {
             fileName = EditorGUILayout.TextField("File Name", fileName);
 
@@ -402,18 +402,18 @@ namespace BoltsTools
 
     public class BatchRenamer : EditorWindow
     {
-        private string objNames = "Name";
-        private bool addIndex;
+        string objNames = "Name";
+        bool addIndex;
 
-        private List<Object> selectedObj = new();
+        List<Object> selectedObj = new();
 
-        [MenuItem("Tools/Bolts Tools/Small Tools/BatchRename")]
+        [MenuItem("Tools/Bolts Tools/Small Tools/Batch Rename")]
         public static void OpenWindow()
         {
             GetWindow<BatchRenamer>();
         }
 
-        private void OnGUI()
+        void OnGUI()
         {
             objNames = EditorGUILayout.TextField("Objects Names", objNames);
 
@@ -443,18 +443,18 @@ namespace BoltsTools
 
     public class MakeScriptableObject : EditorWindow
     {
-        private List<Type> soTypes = new();
-        private string[] typesNames;
-        private int selectedIndex;
-        private string assetName;
+        List<Type> soTypes = new();
+        string[] typesNames;
+        int selectedIndex;
+        string assetName;
 
-        [MenuItem("Tools/Bolts Tools/Small Tools/ Make SO")]
+        [MenuItem("Tools/Bolts Tools/Small Tools/Make SO")]
         public static void OpenWindow()
         {
             GetWindow<MakeScriptableObject>();
         }
 
-        private void OnGUI()
+        void OnGUI()
         {
             if (soTypes.Count == 0)
             {
@@ -525,4 +525,6 @@ namespace BoltsTools
             Debug.Log($"Created {type.Name} At {path}");
         }
     }
+
+    
 }

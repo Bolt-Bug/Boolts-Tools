@@ -9,9 +9,11 @@ namespace BoltsTools
         public bool usePersistentDataPath = true;
         public bool useEncryption;
 
-        public string path;
 
         public string GetFullPath()
-        { return Path.Combine(path, fileName); }
+        {
+            string path = usePersistentDataPath ? Application.persistentDataPath : Application.dataPath;
+            return Path.Combine(path, fileName);
+        }
     }
 }

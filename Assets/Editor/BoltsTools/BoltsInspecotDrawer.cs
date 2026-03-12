@@ -1,11 +1,13 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BoltsTools;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace BoltsTools
+namespace Editor.BoltsTools
 {
     [CustomPropertyDrawer(typeof(BoltsCommentAttribute))]
     public class BoltsCommentDrawer : PropertyDrawer
@@ -126,7 +128,7 @@ namespace BoltsTools
 
             var mat = matProp.objectReferenceValue as Material;
 
-            if (mat == null || mat.shader == null)
+            if (!mat || !mat.shader)
             {
                 EditorGUI.LabelField(position, label.text, "Invalid Material or Shader.");
                 EditorGUI.EndProperty();
@@ -165,7 +167,7 @@ namespace BoltsTools
                 return direct;
 
             string path = property.propertyPath;
-            int lastDot = path.LastIndexOf(".");
+            int lastDot = path.LastIndexOf(".", StringComparison.Ordinal);
 
             if (lastDot < 0)
                 return property.serializedObject.FindProperty(siblingName);
@@ -359,9 +361,9 @@ namespace BoltsTools
     }
 
     [CustomEditor(typeof(BoltsBoxCollider))]
-    public class BoltsBoxColliderDrawer : Editor
+    public class BoltsBoxColliderDrawer : UnityEditor.Editor
     {
-        private Editor boxColliderEditor;
+        private UnityEditor.Editor boxColliderEditor;
 
         public override void OnInspectorGUI()
         {
@@ -401,7 +403,7 @@ namespace BoltsTools
                 customBC.boxCollider.hideFlags = HideFlags.HideInInspector;
 
                 if (boxColliderEditor == null)
-                    boxColliderEditor = Editor.CreateEditor(customBC.boxCollider);
+                    boxColliderEditor = UnityEditor.Editor.CreateEditor(customBC.boxCollider);
 
                 boxColliderEditor.DrawDefaultInspector();
             }
@@ -413,7 +415,7 @@ namespace BoltsTools
                 DestroyImmediate(boxColliderEditor);
         }
     }
-
+    
     public class NonWindowTools
     {
         [MenuItem("Tools/Bolts Tools/Documentation")]

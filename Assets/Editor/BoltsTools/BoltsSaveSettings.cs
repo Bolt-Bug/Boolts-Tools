@@ -1,9 +1,10 @@
 using System.IO;
+using BoltsTools;
 using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
 
-namespace BoltsTools
+namespace Editor.BoltsTools
 {
     [ScriptedImporter(1, "savecfg")]
     public class BoltsSaveSettings : ScriptedImporter
@@ -25,8 +26,6 @@ namespace BoltsTools
                     else if (line.StartsWith("useEncryption"))
                         config.useEncryption = bool.Parse(line.Split("=")[1]);
                 }
-
-                config.path = config.usePersistentDataPath ? Application.persistentDataPath : Application.dataPath;
             }
 
             config.hideFlags = HideFlags.None;
@@ -39,7 +38,7 @@ namespace BoltsTools
     }
 
     [CustomEditor(typeof(SavingConfigAsset))]
-    public class SaveConfigEditor : Editor
+    public class SaveConfigEditor : UnityEditor.Editor
     {
         SavingConfigAsset config
         {
@@ -59,9 +58,9 @@ namespace BoltsTools
             config.useEncryption = EditorGUILayout.Toggle("Use Encryption", config.useEncryption);
 
             EditorGUILayout.Space();
-            EditorGUILayout.HelpBox("Edit values above, then click Save to write to .savecfg file", MessageType.Info);
+            EditorGUILayout.HelpBox("Edit values above to write to .savecfg file", MessageType.Info);
 
-            if (GUILayout.Button("Save Changes") || EditorGUI.EndChangeCheck())
+            if (EditorGUI.EndChangeCheck())
             {
                 EditorUtility.SetDirty(config);
 

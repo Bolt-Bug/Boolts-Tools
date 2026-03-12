@@ -1,0 +1,3 @@
+saveFileName=save.json
+usePersistentDataPath=True
+useEncryption=False
