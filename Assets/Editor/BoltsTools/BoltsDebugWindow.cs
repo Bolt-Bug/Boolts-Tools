@@ -1,18 +1,14 @@
 using System;
-using System.IO;
 using UnityEditor;
 using UnityEngine;
+using BoltsTools;
 
 namespace editor.BoltsTools
 {
     public class BoltsDebugWindow : EditorWindow
     {
         BoltsDebugMenuSettings config;
-        SerializedObject serializedConfig;
-        Vector2 scrollPos;
-
-        string jsonFilePath;
-        const string ConfigPath = "Assets/Resources/DebugSettings.debug";
+        SerializedObject serializedObject;
 
         [MenuItem("Tools/Bolts Tools/Debug Settings")]
         public static void OpenWindow()
@@ -30,26 +26,10 @@ namespace editor.BoltsTools
 
         void LoadConfig()
         {
-            config = CreateInstance<BoltsDebugMenuSettings>();
+            config = Resources.Load<BoltsDebugMenuSettings>("DebugSettings");
 
-            string[] settingsFile = File.ReadAllLines(ConfigPath);
-            foreach (string line in settingsFile)
-            {
-                if (line.StartsWith("keyToOpen"))
-                    config.keyToOpenDebug = Enum.Parse<KeyCode>(line.Split("=")[1]);
-            }
-            
-            if(config != null)
-                serializedConfig = new(config);
-            else
-            {
-                Debug.Log("Could Not Find Settings... Making One");
-
-                BoltsDebugMenuSettings newFile = new();
-                AssetDatabase.CreateAsset(newFile, ConfigPath);
-
-                serializedConfig = new(AssetDatabase.LoadAssetAtPath<BoltsDebugMenuSettings>(ConfigPath));
-            }
+            if (config == null)
+                Debug.LogError("Could Not Find Debug Asset");
         }
         
         void OnGUI()
@@ -59,38 +39,28 @@ namespace editor.BoltsTools
 
             if (config == null)
             {
-                EditorGUILayout.HelpBox($"Config file not found at:{ConfigPath}", MessageType.Error);
-
-                if (GUILayout.Button("Reload"))
-                {
-                    LoadConfig();
-                }
-
+                EditorGUILayout.HelpBox("Debug Asset Not Found", MessageType.Error);
                 return;
             }
-            
-            serializedConfig.Update();
-            
-            EditorGUI.BeginChangeCheck();
-            
-            EditorGUILayout.LabelField("Settings", EditorStyles.boldLabel);
-            config.keyToOpenDebug = (KeyCode)EditorGUILayout.EnumPopup("Key To Open", config.keyToOpenDebug);
-            
-            if(EditorGUI.EndChangeCheck())
-                SaveToFile();
-        }
-        
-        void SaveToFile()
-        {
-            if (config == null) return;
-            
-            using (StreamWriter writer = new StreamWriter(ConfigPath))
-            {
-                writer.WriteLine($"keyToOpen={config.keyToOpenDebug}");
-            }
 
-            AssetDatabase.ImportAsset(ConfigPath, ImportAssetOptions.ForceUpdate);
-            Debug.Log($"✓ Configuration saved");
+            serializedObject = new SerializedObject(config);
+            
+            serializedObject.Update();
+
+            SerializedProperty prop = serializedObject.GetIterator();
+            prop.NextVisible(true);
+            while (prop.NextVisible(false))
+                EditorGUILayout.PropertyField(prop, true);
+            
+            SerializedProperty playerTag = serializedObject.FindProperty("playerTag");
+            
+            string[] allTags = UnityEditorInternal.InternalEditorUtility.tags;
+            int index = Array.IndexOf(allTags, playerTag.stringValue);
+
+            index = EditorGUILayout.Popup("Player Tag", index, allTags);
+            playerTag.stringValue = allTags[index];
+
+            serializedObject.ApplyModifiedProperties(); 
         }
     }
 }

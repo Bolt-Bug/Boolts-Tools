@@ -363,7 +363,7 @@ namespace Editor.BoltsTools
     [CustomEditor(typeof(BoltsBoxCollider))]
     public class BoltsBoxColliderDrawer : UnityEditor.Editor
     {
-        private UnityEditor.Editor boxColliderEditor;
+        UnityEditor.Editor boxColliderEditor;
 
         public override void OnInspectorGUI()
         {

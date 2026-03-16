@@ -1,12 +1,17 @@
 using UnityEngine;
 
-public class BoltsDebugMenuSettings : ScriptableObject
+namespace BoltsTools
 {
-    public KeyCode keyToOpenDebug = KeyCode.F3;
+    [Icon("Assets/BoltsTools/Sprites/DebugLogo.png")]
+    public class BoltsDebugMenuSettings : ScriptableObject
+    {
+        public KeyCode keyToOpenDebug = KeyCode.F3;
 
-    public bool showFPS, showPlayerPos;
+        public bool showFPS, showPlayerPos;
 
-    public string playerTag = "Player";
+        [HideInInspector]
+        public string playerTag = "Player";
 
-    public KeyCode keyToOpenCommands = KeyCode.F2;
+        public KeyCode keyToOpenCommands = KeyCode.F2;
+    }
 }

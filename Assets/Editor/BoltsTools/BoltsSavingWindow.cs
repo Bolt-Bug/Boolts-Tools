@@ -14,7 +14,6 @@ namespace Editor.BoltsTools
 
         string jsonFilePath;
         SaveData sd;
-        const string ConfigPath = "Assets/Resources/SaveSettings.savecfg";
 
         [MenuItem("Tools/Bolts Tools/Save Settings")]
         static void ShowWindow()
@@ -32,66 +31,31 @@ namespace Editor.BoltsTools
 
         void LoadConfig()
         {
-            config = CreateInstance<SavingConfigAsset>();
-
-            string[] settingsFile = File.ReadAllLines(ConfigPath);
-            foreach (string line in settingsFile)
-            {
-                if (line.StartsWith("saveFileName"))
-                    config.fileName = line.Split("=")[1];
-                else if (line.StartsWith("usePersistentDataPath"))
-                    config.usePersistentDataPath = bool.Parse(line.Split("=")[1]);
-                else if (line.StartsWith("useEncryption"))
-                    config.useEncryption = bool.Parse(line.Split("=")[1]);
-            }
-
-            if (config != null)
-            {
-                serializedConfig = new(config);
-            }
-            else
-            {
-                Debug.Log("Could Not Find Settings... Making One");
-
-                SavingConfigAsset newFile = new();
-                AssetDatabase.CreateAsset(newFile, ConfigPath);
-
-                serializedConfig = new(AssetDatabase.LoadAssetAtPath<SavingConfigAsset>(ConfigPath));
-            }
+            config = Resources.Load<SavingConfigAsset>("SaveSettings");
+            
+            serializedConfig = new SerializedObject(config);
         }
 
         void OnGUI()
         {
-            EditorGUILayout.LabelField("Save Settings", EditorStyles.boldLabel);
-            EditorGUILayout.Space();
-
-            if (config == null)
-            {
-                EditorGUILayout.HelpBox($"Config file not found at:{ConfigPath}", MessageType.Error);
-
-                if (GUILayout.Button("Reload"))
-                {
-                    LoadConfig();
-                }
-
-                return;
-            }
-
             scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
-
+            
             serializedConfig.Update();
 
             EditorGUI.BeginChangeCheck();
+            
+            if (config == null)
+            {
+                EditorGUILayout.HelpBox($"Config file not found", MessageType.Error);
+                return;
+            }
 
             EditorGUILayout.LabelField("Save Settings", EditorStyles.boldLabel);
             config.fileName = EditorGUILayout.TextField("Save File Name", config.fileName);
             config.usePersistentDataPath =
                 EditorGUILayout.Toggle("Use Persistent Data Path", config.usePersistentDataPath);
             config.useEncryption = EditorGUILayout.Toggle("Use Encryption", config.useEncryption);
-
-            if (EditorGUI.EndChangeCheck())
-                SaveToFile();
-
+            
             GUILayout.BeginHorizontal();
 
             if (GUILayout.Button("Show Saved Data"))
@@ -133,28 +97,7 @@ namespace Editor.BoltsTools
             EditorGUILayout.EndScrollView();
 
             EditorGUILayout.Space();
-
-            if (GUILayout.Button("Save to File", GUILayout.Height(30)))
-            {
-                SaveToFile();
-                Debug.Log($"✓ Configuration saved");
-            }
         }
-
-        void SaveToFile()
-        {
-            if (config == null) return;
-            
-            using (StreamWriter writer = new StreamWriter(ConfigPath))
-            {
-                writer.WriteLine($"saveFileName={config.fileName}");
-                writer.WriteLine($"usePersistentDataPath={config.usePersistentDataPath}");
-                writer.WriteLine($"useEncryption={config.useEncryption}");
-            }
-
-            AssetDatabase.ImportAsset(ConfigPath, ImportAssetOptions.ForceUpdate);
-        }
-
         void LoadSaveData()
         {
             if (File.Exists(jsonFilePath))

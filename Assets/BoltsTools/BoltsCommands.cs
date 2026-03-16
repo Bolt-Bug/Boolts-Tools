@@ -31,7 +31,7 @@ namespace  BoltsTools
         /// </summary>
         /// <param name="commandName">The Name For The Command</param>
         /// <param name="methodName">The Name Of The Method The Command Should Run (Dont Add Arguments)</param>
-        /// <param name="target">What Script On What Game Object Sould Run The Command</param>
+        /// <param name="target">What Script On What Game Object Should Run The Command</param>
         public void AddCommand(string commandName, string methodName, MonoBehaviour target)
         {
             string finalName = methodName;

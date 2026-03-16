@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace BoltsTools
 {
+    [Icon("Assets/BoltsTools/Sprites/SettingsLogo.png")]
     public class SavingConfigAsset : ScriptableObject
     {
         public string fileName = "save.json";

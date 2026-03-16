@@ -96,12 +96,13 @@ namespace BoltsTools
 
         
         /// <summary>
-        /// Add A Button To The Debug Screene
+        /// Add A Button To The Debug Screen
         /// </summary>
         /// <param name="name">The Name Of The Button</param>
         /// <param name="value">What The Button Should Say</param>
         /// <param name="onClick">What Actions To Do When Clicked</param>
         /// <param name="size">The Size And Position. Can Be Left Empty></param>
+        /// <example>BoltsDebugAddButton("Teleport", "Teleport The Player", TeleportPlayer(), new Rect(100, 100, 100, 100))</example>
         public static void BoltsDebugAddButton(string name, string value, Action onClick, Rect size = new Rect())
         {
             int index = -1;
