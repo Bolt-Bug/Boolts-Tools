@@ -37,7 +37,7 @@ namespace BoltsTools
         bool showPreview;
         List<GameObject> previewList = new();
 
-        [MenuItem("Tools/Bolts Tools/Small Tools/Grid Spawner")]
+        [MenuItem("Tools/Bolts Tools/Small Tools/Grid Spawner #a")]
         static void SetWindow()
         {
             SpawnGrid window = GetWindow<SpawnGrid>(false, "Grid Spawner", true);
@@ -255,7 +255,7 @@ namespace BoltsTools
         bool selectName;
         string objectName = "";
 
-        [MenuItem("Tools/Bolts Tools/Small Tools/Select All Objects With Component")]
+        [MenuItem("Tools/Bolts Tools/Small Tools/Select All Objects With Component #q")]
         public static void OpenWidow()
         {
             GetWindow(typeof(SelectAllWithComponentOrName));
@@ -364,7 +364,7 @@ namespace BoltsTools
         string path = "Assets";
         string fileName = "image";
 
-        [MenuItem("Tools/Bolts Tools/Small Tools/Take Screenshot")]
+        [MenuItem("Tools/Bolts Tools/Small Tools/Take Screenshot #w")]
         static void OpenWindow()
         {
             GetWindow<TakeScreenshot>();
@@ -407,7 +407,7 @@ namespace BoltsTools
 
         List<Object> selectedObj = new();
 
-        [MenuItem("Tools/Bolts Tools/Small Tools/Batch Rename")]
+        [MenuItem("Tools/Bolts Tools/Small Tools/Batch Rename #e")]
         public static void OpenWindow()
         {
             GetWindow<BatchRenamer>();
@@ -448,7 +448,7 @@ namespace BoltsTools
         int selectedIndex;
         string assetName;
 
-        [MenuItem("Tools/Bolts Tools/Small Tools/Make SO")]
+        [MenuItem("Tools/Bolts Tools/Small Tools/Make SO #d")]
         public static void OpenWindow()
         {
             GetWindow<MakeScriptableObject>();

@@ -10,7 +10,7 @@ namespace editor.BoltsTools
         BoltsDebugMenuSettings config;
         SerializedObject serializedObject;
 
-        [MenuItem("Tools/Bolts Tools/Debug Settings")]
+        [MenuItem("Tools/Bolts Tools/Debug Settings &d")]
         public static void OpenWindow()
         {
             BoltsDebugWindow window = GetWindow<BoltsDebugWindow>(true, "Debug Settings Window", true);

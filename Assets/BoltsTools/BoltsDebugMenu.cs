@@ -122,6 +122,38 @@ namespace BoltsTools
                 buttonsToShow.Add(new(){textName = name, value = value, onClick = onClick, size = theSize});
         }
         
+        /// <summary>
+        /// Add A Button To The Debug Screen
+        /// </summary>
+        /// <param name="name">The Name Of The Text To Remove</param>
+        /// <example>BoltsDebugRemoveText("playerSpeed)</example>
+        public static void BoltsDebugRemoveText(string name)
+        {
+            int index = -1;
+            index = textToShow.FindIndex(x => x.textName == name);
+            
+            if(index > -1)
+                textToShow.RemoveAt(index);
+            else
+                Debug.LogError($"Could Not Find Debug Text Named {name}");
+        }
+
+        /// <summary>
+        /// Add A Button To The Debug Screen
+        /// </summary>
+        /// <param name="name">The Name Of The Button To Remove</param>
+        /// <example>BoltsDebugRemoveButton("killPlayer")</example>
+        public static void BoltsDebugRemoveButton(string name)
+        {
+            int index = -1;
+            index = buttonsToShow.FindIndex(x => x.textName == name);
+            
+            if(index > -1)
+                buttonsToShow.RemoveAt(index);
+            else
+                Debug.LogError($"Could Not Find Debug Button Named {name}");
+        }
+        
         public static void UpdatePlayerOBJ(Transform newPlayer)
         {
             player = newPlayer;
@@ -129,8 +161,8 @@ namespace BoltsTools
         
         void Update()
         {
-            frames = (float)Decimal.Round((decimal)(1 / Time.deltaTime));
-            time += Time.deltaTime;
+            frames = (float)Decimal.Round((decimal)(1 / Time.unscaledDeltaTime));
+            time += Time.unscaledDeltaTime;
             if (time >= 1)
             {
                 frames = 0;

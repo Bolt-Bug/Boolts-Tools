@@ -418,13 +418,13 @@ namespace Editor.BoltsTools
     
     public class NonWindowTools
     {
-        [MenuItem("Tools/Bolts Tools/Documentation")]
+        [MenuItem("Tools/Bolts Tools/Documentation #&d")]
         public static void OpenDocumentation()
         {
             Application.OpenURL("https://github.com/Bolt-Bug/Boolts-Tools");
         }
 
-        [MenuItem("Tools/Bolts Tools/Open Save Folder")]
+        [MenuItem("Tools/Bolts Tools/Open Save Folder #&o")]
         public static void OpenSaveFolder()
         {
             string path = Path.GetDirectoryName(BoltsSave._settings.GetFullPath());
