@@ -17,15 +17,35 @@ namespace BoltsTools
         {
             Initialize();
         }
+        
+        [MenuItem("Tools/Bolts Tools/Reset Save &#s")]
+        public static void ResetTheSave()
+        {
+            bool confirm = EditorUtility.DisplayDialog("Are You Sure?",
+                "Are You Sure You Want To Reset Your Save?" + 
+                "\nThis will Remove Your Current Save File", "Yes", "Cancel");
+
+            if (confirm)
+            {
+                ResetSave();
+                Debug.Log("Saved Reset");
+            }
+        }
 #endif
 
-        public static void SaveFloatValue(string name, float value)
+        /// <summary>
+        /// Save A Float
+        /// </summary>
+        /// <param name="name">Name Of The Float To Be Saved</param>
+        /// <param name="value">The Value Of The Saved Float</param>
+        /// <param name="saveFile">Name Od The Save File</param>
+        public static void SaveFloatValue(string name, float value, string saveFile = "save.json")
         {
-            SaveData sd = LoadOrCreate();
+            SaveData sd = LoadOrCreate(saveFile);
 
             if (_settings == null)
             {
-                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Saving");
 
                 return;
             }
@@ -41,16 +61,22 @@ namespace BoltsTools
             else
                 sd.floats.Add(sf);
 
-            SaveFile(sd);
+            SaveFile(sd, saveFile);
         }
 
-        public static void SaveIntValue(string name, int value)
+        /// <summary>
+        /// Save A Int
+        /// </summary>
+        /// <param name="name">Name Of The Int To Be Saved</param>
+        /// <param name="value">The Value Of The Saved Int</param>
+        /// <param name="saveFile">Name Od The Save File</param>
+        public static void SaveIntValue(string name, int value, string saveFile = "save.json")
         {
-            SaveData sd = LoadOrCreate();
+            SaveData sd = LoadOrCreate(saveFile);
 
             if (_settings == null)
             {
-                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Saving");
 
                 return;
             }
@@ -66,16 +92,22 @@ namespace BoltsTools
             else
                 sd.ints.Add(si);
 
-            SaveFile(sd);
+            SaveFile(sd, saveFile);
         }
 
-        public static void SaveVector3Value(string name, Vector3 value)
+        /// <summary>
+        /// Save A Vector3
+        /// </summary>
+        /// <param name="name">Name Of The Vector3 To Be Saved</param>
+        /// <param name="value">The Value Of The Saved Vector3</param>
+        /// <param name="saveFile">Name Od The Save File</param>
+        public static void SaveVector3Value(string name, Vector3 value, string saveFile = "save.json")
         {
-            SaveData sd = LoadOrCreate();
+            SaveData sd = LoadOrCreate(saveFile);
 
             if (_settings == null)
             {
-                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Saving");
 
                 return;
             }
@@ -92,16 +124,22 @@ namespace BoltsTools
             else
                 sd.Vector3s.Add(sv);
 
-            SaveFile(sd);
+            SaveFile(sd, saveFile);
         }
 
-        public static void SaveVector2Value(string name, Vector2 value)
+        /// <summary>
+        /// Save A Vector2
+        /// </summary>
+        /// <param name="name">Name Of The Vector2 To Be Saved</param>
+        /// <param name="value">The Value Of The Saved Vector2</param>
+        /// <param name="saveFile">Name Od The Save File</param>
+        public static void SaveVector2Value(string name, Vector2 value, string saveFile = "save.json")
         {
-            SaveData sd = LoadOrCreate();
+            SaveData sd = LoadOrCreate(saveFile);
 
             if (_settings == null)
             {
-                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Saving");
 
                 return;
             }
@@ -118,16 +156,22 @@ namespace BoltsTools
             else
                 sd.Vector2s.Add(sv);
 
-            SaveFile(sd);
+            SaveFile(sd, saveFile);
         }
 
-        public static void SaveStringValue(string name, string value)
+        /// <summary>
+        /// Save A String
+        /// </summary>
+        /// <param name="name">Name Of The String To Be Saved</param>
+        /// <param name="value">The Value Of The Saved String</param>
+        /// <param name="saveFile">Name Od The Save File</param>
+        public static void SaveStringValue(string name, string value, string saveFile = "save.json")
         {
-            SaveData sd = LoadOrCreate();
+            SaveData sd = LoadOrCreate(saveFile);
 
             if (_settings == null)
             {
-                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Saving");
 
                 return;
             }
@@ -143,19 +187,25 @@ namespace BoltsTools
             else
                 sd.strings.Add(ss);
 
-            SaveFile(sd);
+            SaveFile(sd, saveFile);
         }
 
-        public static void SaveBoolValue(string name, bool value)
+        /// <summary>
+        /// Save A Bool
+        /// </summary>
+        /// <param name="name">Name Of The Bool To Be Saved</param>
+        /// <param name="value">The Value Of The Saved Bool</param>
+        /// <param name="saveFile">Name Od The Save File</param>
+        public static void SaveBoolValue(string name, bool value, string saveFile = "save.json")
         {
             if (_settings == null)
             {
-                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Saving");
 
                 return;
             }
 
-            SaveData sd = LoadOrCreate();
+            SaveData sd = LoadOrCreate(saveFile);
 
             SaveBool sb = new() { name = name, value = value };
 
@@ -168,16 +218,22 @@ namespace BoltsTools
             else
                 sd.bools.Add(sb);
 
-            SaveFile(sd);
+            SaveFile(sd, saveFile);
         }
 
-        public static void SaveClassVariable<T>(string name, T classInstance) where T : class
+        /// <summary>
+        /// Save A Class
+        /// </summary>
+        /// <param name="name">Name Of The Class To Be Saved</param>
+        /// <param name="classInstance">The Class</param>
+        /// <param name="saveFile">Name Od The Save File</param>
+        public static void SaveClassVariable<T>(string name, T classInstance, string saveFile = "save.json") where T : class
         {
-            SaveData sd = LoadOrCreate();
+            SaveData sd = LoadOrCreate(saveFile);
 
             if (_settings == null)
             {
-                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Saving");
 
                 return;
             }
@@ -194,24 +250,29 @@ namespace BoltsTools
             else
                 sd.classes.Add(sc);
 
-            SaveFile(sd);
+            SaveFile(sd, saveFile);
         }
 
-        public static void SaveFile(SaveData sd)
+        public static void SaveFile(SaveData sd, string saveFile = "save.json")
         {
-            string fullPath = _settings.GetFullPath();
+            string fullPath = _settings.GetFullPath(saveFile);
 
             string newJson = JsonUtility.ToJson(sd, _settings.useEncryption);
             File.WriteAllText(fullPath, newJson);
         }
 
-        public float GetFloat(string name)
+        /// <summary>
+        /// Returns A Saved Float
+        /// </summary>
+        /// <param name="name">Name Of The Saved Float</param>
+        /// <param name="saveFile">Name Od The Save File</param>
+        public static float GetFloat(string name, string saveFile = "save.json")
         {
-            SaveData sd = LoadOrCreate();
+            SaveData sd = LoadOrCreate(saveFile);
 
             if (_settings == null)
             {
-                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Saving");
 
                 return -1;
             }
@@ -225,13 +286,18 @@ namespace BoltsTools
             return -1;
         }
 
-        public int GetInt(string name)
+        /// <summary>
+        /// Returns A Saved Int
+        /// </summary>
+        /// <param name="name">Name Of The Saved Int</param>
+        /// <param name="saveFile">Name Od The Save File</param>
+        public static int GetInt(string name, string saveFile = "save.json")
         {
-            SaveData sd = LoadOrCreate();
+            SaveData sd = LoadOrCreate(saveFile);
 
             if (_settings == null)
             {
-                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Saving");
 
                 return -1;
             }
@@ -245,13 +311,18 @@ namespace BoltsTools
             return -1;
         }
 
-        public static Vector3 GetVector3(string name)
+        /// <summary>
+        /// Returns A Saved Vector3
+        /// </summary>
+        /// <param name="name">Name Of The Saved Vector3</param>
+        /// <param name="saveFile">Name Od The Save File</param>
+        public static Vector3 GetVector3(string name, string saveFile = "save.json")
         {
-            SaveData sd = LoadOrCreate();
+            SaveData sd = LoadOrCreate(saveFile);
 
             if (_settings == null)
             {
-                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Saving");
 
                 return Vector3.zero;
             }
@@ -265,13 +336,18 @@ namespace BoltsTools
             return Vector3.zero;
         }
 
-        public static Vector2 GetVector2(string name)
+        /// <summary>
+        /// Returns A Saved Vector2
+        /// </summary>
+        /// <param name="name">Name Of The Saved Vector2</param>
+        /// <param name="saveFile">Name Od The Save File</param>
+        public static Vector2 GetVector2(string name, string saveFile = "save.json")
         {
-            SaveData sd = LoadOrCreate();
+            SaveData sd = LoadOrCreate(saveFile);
 
             if (_settings == null)
             {
-                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Saving");
 
                 return Vector2.zero;
             }
@@ -285,13 +361,18 @@ namespace BoltsTools
             return Vector2.zero;
         }
 
-        public static string GetString(string name)
+        /// <summary>
+        /// Returns A Saved String
+        /// </summary>
+        /// <param name="name">Name Of The Saved String</param>
+        /// <param name="saveFile">Name Od The Save File</param>
+        public static string GetString(string name, string saveFile = "save.json")
         {
-            SaveData sd = LoadOrCreate();
+            SaveData sd = LoadOrCreate(saveFile);
 
             if (_settings == null)
             {
-                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Saving");
 
                 return String.Empty;
             }
@@ -305,13 +386,18 @@ namespace BoltsTools
             return String.Empty;
         }
 
-        public static bool GetBool(string name)
+        /// <summary>
+        /// Return A Saved Bool
+        /// </summary>
+        /// <param name="name">Name Of The Saved Bool</param>
+        /// <param name="saveFile">Name Od The Save File</param>
+        public static bool GetBool(string name, string saveFile = "save.json")
         {
-            SaveData sd = LoadOrCreate();
+            SaveData sd = LoadOrCreate(saveFile);
 
             if (_settings == null)
             {
-                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Saving");
 
                 return false;
             }
@@ -324,15 +410,20 @@ namespace BoltsTools
             return false;
         }
 
-        public static T LoadClass<T>(string name) where T : class
+        /// <summary>
+        /// Return A Saved Class
+        /// </summary>
+        /// <param name="name">Name Of The Saved Class</param>
+        /// <param name="saveFile">Name Od The Save File</param>
+        public static T LoadClass<T>(string name, string saveFile = "save.json") where T : class, new()
         {
-            SaveData sd = LoadOrCreate();
+            SaveData sd = LoadOrCreate(saveFile);
 
             if (_settings == null)
             {
-                Debug.LogError("SaveSystem not initialized. Call SaveSystem.Initialize() once before saving.");
+                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Saving");
 
-                return null;
+                return new T();
             }
 
             int index = sd.classes.FindIndex(x => x.name == name);
@@ -341,7 +432,7 @@ namespace BoltsTools
                 return JsonUtility.FromJson<T>(sd.classes[index].value);
 
             Debug.LogError($"Could Not Find Class Named: {name}");
-            return null;
+            return new T();
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -359,9 +450,9 @@ namespace BoltsTools
             _isLoading = false;
         }
 
-        public static SaveData LoadOrCreate()
+        public static SaveData LoadOrCreate(string saveFile = "save.json")
         {
-            var fullPath = _settings.GetFullPath();
+            var fullPath = _settings.GetFullPath(saveFile);
             Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
 
             SaveData sd = new();

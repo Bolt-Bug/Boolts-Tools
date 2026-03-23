@@ -10,12 +10,15 @@ namespace Editor.BoltsTools
     {
         SavingConfigAsset config;
         SerializedObject serializedConfig;
+        Vector2 listScrollPos;
         Vector2 scrollPos;
 
         string jsonFilePath;
         SaveData sd;
+        
+        int index;
 
-        [MenuItem("Tools/Bolts Tools/Save Settings")]
+        [MenuItem("Tools/Bolts Tools/Save Settings &s")]
         static void ShowWindow()
         {
             BoltsSavingWindow window = GetWindow<BoltsSavingWindow>(true, "Save Settings Window", true);
@@ -47,14 +50,30 @@ namespace Editor.BoltsTools
             if (config == null)
             {
                 EditorGUILayout.HelpBox($"Config file not found", MessageType.Error);
+                EditorGUILayout.EndScrollView();
                 return;
             }
 
             EditorGUILayout.LabelField("Save Settings", EditorStyles.boldLabel);
-            config.fileName = EditorGUILayout.TextField("Save File Name", config.fileName);
+
+            float listHeight = Mathf.Min(config.fileName.Count * 22 + 10, 200);
+            listScrollPos = GUILayout.BeginScrollView(listScrollPos, GUILayout.Height(listHeight));
+            for (int i = 0; i < config.fileName.Count; i++)
+            {
+                EditorGUILayout.BeginHorizontal();
+                config.fileName[i] = EditorGUILayout.TextField("Save Files Name", config.fileName[i]);
+                EditorGUILayout.EndHorizontal();
+            }
+            GUILayout.EndScrollView();
+            
             config.usePersistentDataPath =
                 EditorGUILayout.Toggle("Use Persistent Data Path", config.usePersistentDataPath);
             config.useEncryption = EditorGUILayout.Toggle("Use Encryption", config.useEncryption);
+
+            string fileToCheck = "";
+            
+            index = EditorGUILayout.Popup("Save File", index, config.fileName.ToArray());
+            fileToCheck = config.fileName[index];
             
             GUILayout.BeginHorizontal();
 
@@ -64,12 +83,12 @@ namespace Editor.BoltsTools
                 {
                     SavingConfigAsset sca = BoltsSave._settings;
 
-                    if (!File.Exists(sca.GetFullPath()))
+                    if (!File.Exists(sca.GetFullPath(fileToCheck)))
                     {
-                        BoltsSave.LoadOrCreate();
+                        BoltsSave.LoadOrCreate(fileToCheck);
                     }
 
-                    jsonFilePath = sca.GetFullPath();
+                    jsonFilePath = sca.GetFullPath(fileToCheck);
 
                     LoadSaveData();
                 }
@@ -193,7 +212,7 @@ namespace Editor.BoltsTools
                 {
                     EditorGUILayout.BeginHorizontal();
                     GUIContent vectorLabel = new GUIContent(sd.Vector2s[i].name);
-                    sd.Vector3s[i].value = EditorGUILayout.Vector2Field(vectorLabel, sd.Vector2s[i].value);
+                    sd.Vector2s[i].value = EditorGUILayout.Vector2Field(vectorLabel, sd.Vector2s[i].value);
 
                     if (GUILayout.Button("X", GUILayout.Width(25)))
                     {
