@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e033b083454732f4eabd4e0eae34339e, type: 3}
   m_Name: SaveSettings
   m_EditorClassIdentifier: 
-  fileName: save.json
+  fileName:
+  - ssave.json
+  - save1.json
   usePersistentDataPath: 1
   useEncryption: 0

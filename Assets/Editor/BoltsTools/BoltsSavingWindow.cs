@@ -53,6 +53,8 @@ namespace Editor.BoltsTools
                 EditorGUILayout.EndScrollView();
                 return;
             }
+            
+            // Add Defult Save
 
             EditorGUILayout.LabelField("Save Settings", EditorStyles.boldLabel);
 
@@ -306,4 +308,27 @@ namespace Editor.BoltsTools
                 BoltsSave.SaveFile(sd);
         }
     }
+
+    public class AddDefaultValue : EditorWindow
+    {
+        static string fileToChange;
+        SaveTypes saveType;
+        
+        public static void OpenWindow(string file)
+        {
+            AddDefaultValue window = GetWindow<AddDefaultValue>(true, "Save Settings Window", true);
+
+            window.minSize = new(400, 400);
+            window.maxSize = new(400, 1000);
+
+            fileToChange = file;
+        }
+
+        void OnGUI()
+        {
+            saveType = (SaveTypes)EditorGUILayout.EnumPopup(saveType);
+        }
+    }
+    
+    public enum SaveTypes {Float, Int, Vector3, Vector2, String, Bool,}
 }
