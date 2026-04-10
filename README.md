@@ -14,7 +14,7 @@ Read The Documentation [Here](https://github.com/Bolt-Bug/Boolts-Tools/wiki)
 * Look For `Bolts Tools`
 * Click On The `Download` Button
 * Then Click On The `Import` Button
-
+ 
 ### From Github
 * To Start Go To [Releases](https://github.com/Bolt-Bug/Boolts-Tools/releases)
 * Download The Latest
