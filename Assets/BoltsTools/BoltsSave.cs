@@ -39,7 +39,7 @@ namespace BoltsTools
         /// <param name="name">Name Of The Float To Be Saved</param>
         /// <param name="value">The Value Of The Saved Float</param>
         /// <param name="saveFile">Name Od The Save File</param>
-        public static void SaveFloatValue(string name, float value, string saveFile = "save.json")
+        public static void SaveFloatValue(string name, float value, int saveFile = 0)
         {
             SaveData sd = LoadOrCreate(saveFile);
 
@@ -70,7 +70,7 @@ namespace BoltsTools
         /// <param name="name">Name Of The Int To Be Saved</param>
         /// <param name="value">The Value Of The Saved Int</param>
         /// <param name="saveFile">Name Od The Save File</param>
-        public static void SaveIntValue(string name, int value, string saveFile = "save.json")
+        public static void SaveIntValue(string name, int value, int saveFile = 0)
         {
             SaveData sd = LoadOrCreate(saveFile);
 
@@ -101,7 +101,7 @@ namespace BoltsTools
         /// <param name="name">Name Of The Vector3 To Be Saved</param>
         /// <param name="value">The Value Of The Saved Vector3</param>
         /// <param name="saveFile">Name Od The Save File</param>
-        public static void SaveVector3Value(string name, Vector3 value, string saveFile = "save.json")
+        public static void SaveVector3Value(string name, Vector3 value, int saveFile = 0)
         {
             SaveData sd = LoadOrCreate(saveFile);
 
@@ -133,7 +133,7 @@ namespace BoltsTools
         /// <param name="name">Name Of The Vector2 To Be Saved</param>
         /// <param name="value">The Value Of The Saved Vector2</param>
         /// <param name="saveFile">Name Od The Save File</param>
-        public static void SaveVector2Value(string name, Vector2 value, string saveFile = "save.json")
+        public static void SaveVector2Value(string name, Vector2 value, int saveFile = 0)
         {
             SaveData sd = LoadOrCreate(saveFile);
 
@@ -165,7 +165,7 @@ namespace BoltsTools
         /// <param name="name">Name Of The String To Be Saved</param>
         /// <param name="value">The Value Of The Saved String</param>
         /// <param name="saveFile">Name Od The Save File</param>
-        public static void SaveStringValue(string name, string value, string saveFile = "save.json")
+        public static void SaveStringValue(string name, string value, int saveFile = 0)
         {
             SaveData sd = LoadOrCreate(saveFile);
 
@@ -196,7 +196,7 @@ namespace BoltsTools
         /// <param name="name">Name Of The Bool To Be Saved</param>
         /// <param name="value">The Value Of The Saved Bool</param>
         /// <param name="saveFile">Name Od The Save File</param>
-        public static void SaveBoolValue(string name, bool value, string saveFile = "save.json")
+        public static void SaveBoolValue(string name, bool value, int saveFile = 0)
         {
             if (_settings == null)
             {
@@ -227,7 +227,7 @@ namespace BoltsTools
         /// <param name="name">Name Of The Class To Be Saved</param>
         /// <param name="classInstance">The Class</param>
         /// <param name="saveFile">Name Od The Save File</param>
-        public static void SaveClassVariable<T>(string name, T classInstance, string saveFile = "save.json") where T : class
+        public static void SaveClassVariable<T>(string name, T classInstance, int saveFile = 0) where T : class
         {
             SaveData sd = LoadOrCreate(saveFile);
 
@@ -253,7 +253,7 @@ namespace BoltsTools
             SaveFile(sd, saveFile);
         }
 
-        public static void SaveFile(SaveData sd, string saveFile = "save.json")
+        public static void SaveFile(SaveData sd, int saveFile = 0)
         {
             string fullPath = _settings.GetFullPath(saveFile);
 
@@ -266,7 +266,7 @@ namespace BoltsTools
         /// </summary>
         /// <param name="name">Name Of The Saved Float</param>
         /// <param name="saveFile">Name Od The Save File</param>
-        public static float GetFloat(string name, string saveFile = "save.json")
+        public static float GetFloat(string name, int saveFile = 0)
         {
             SaveData sd = LoadOrCreate(saveFile);
 
@@ -291,7 +291,7 @@ namespace BoltsTools
         /// </summary>
         /// <param name="name">Name Of The Saved Int</param>
         /// <param name="saveFile">Name Od The Save File</param>
-        public static int GetInt(string name, string saveFile = "save.json")
+        public static int GetInt(string name, int saveFile = 0)
         {
             SaveData sd = LoadOrCreate(saveFile);
 
@@ -316,7 +316,7 @@ namespace BoltsTools
         /// </summary>
         /// <param name="name">Name Of The Saved Vector3</param>
         /// <param name="saveFile">Name Od The Save File</param>
-        public static Vector3 GetVector3(string name, string saveFile = "save.json")
+        public static Vector3 GetVector3(string name, int saveFile = 0)
         {
             SaveData sd = LoadOrCreate(saveFile);
 
@@ -341,7 +341,7 @@ namespace BoltsTools
         /// </summary>
         /// <param name="name">Name Of The Saved Vector2</param>
         /// <param name="saveFile">Name Od The Save File</param>
-        public static Vector2 GetVector2(string name, string saveFile = "save.json")
+        public static Vector2 GetVector2(string name, int saveFile = 0)
         {
             SaveData sd = LoadOrCreate(saveFile);
 
@@ -366,7 +366,7 @@ namespace BoltsTools
         /// </summary>
         /// <param name="name">Name Of The Saved String</param>
         /// <param name="saveFile">Name Od The Save File</param>
-        public static string GetString(string name, string saveFile = "save.json")
+        public static string GetString(string name, int saveFile = 0)
         {
             SaveData sd = LoadOrCreate(saveFile);
 
@@ -391,7 +391,7 @@ namespace BoltsTools
         /// </summary>
         /// <param name="name">Name Of The Saved Bool</param>
         /// <param name="saveFile">Name Od The Save File</param>
-        public static bool GetBool(string name, string saveFile = "save.json")
+        public static bool GetBool(string name, int saveFile = 0)
         {
             SaveData sd = LoadOrCreate(saveFile);
 
@@ -415,7 +415,7 @@ namespace BoltsTools
         /// </summary>
         /// <param name="name">Name Of The Saved Class</param>
         /// <param name="saveFile">Name Od The Save File</param>
-        public static T LoadClass<T>(string name, string saveFile = "save.json") where T : class, new()
+        public static T LoadClass<T>(string name, int saveFile = 0) where T : class, new()
         {
             SaveData sd = LoadOrCreate(saveFile);
 
@@ -444,13 +444,16 @@ namespace BoltsTools
             _isLoading = true;
 
             _settings = Resources.Load<SavingConfigAsset>("SaveSettings");
+
+            for (int i = 0; i <_settings.fileName.Count; i++)
+                LoadOrCreate(i);
             
             Debug.Log("Save Settings loaded.");
 
             _isLoading = false;
         }
 
-        public static SaveData LoadOrCreate(string saveFile = "save.json")
+        public static SaveData LoadOrCreate(int saveFile = 0)
         {
             var fullPath = _settings.GetFullPath(saveFile);
             Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
@@ -459,6 +462,17 @@ namespace BoltsTools
 
             if (!File.Exists(fullPath))
             {
+                if (_settings.defaults != null && saveFile < _settings.defaults.Count)
+                {
+                    SaveFileDefaults def = _settings.defaults[saveFile];
+                    sd.floats = new(def.floats);
+                    sd.ints = new(def.ints);
+                    sd.Vector3s = new(def.Vector3s);
+                    sd.Vector2s = new(def.Vector2s);
+                    sd.strings = new(def.strings);
+                    sd.bools = new(def.bools);
+                }
+                
                 string newJsonFile = JsonUtility.ToJson(sd, _settings.useEncryption);
                 File.WriteAllText(fullPath, newJsonFile);
             }

@@ -6,8 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="a0ec6ebf-c246-41a8-a5a5-21f53fcf9a3f" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.My-Tools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.My-Tools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/BoltsTools/BoltsDebugMenu.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/BoltsTools/BoltsDebugMenu.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/BoltsTools/BoltsSave.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/BoltsTools/BoltsSave.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/BoltsTools/BoltsSaveAttribute.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/BoltsTools/BoltsSaveAttribute.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/BoltsTools/SavingConfigAsset.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/BoltsTools/SavingConfigAsset.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Editor/BoltsTools/BoltsSavingWindow.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Editor/BoltsTools/BoltsSavingWindow.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/SaveSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/SaveSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,7 +29,6 @@
     <setting file="file://$PROJECT_DIR$/Assets/BoltsTools/BoltsSave.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/BoltsTools/BoltsSaveAttribute.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/BoltsTools/SavingConfigAsset.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/charlie.stalhammar/Documents/GitHub/My-Tools/Assets/Editor/BoltsTools/BoltsInspecotDrawer.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Editor/BoltsTools/BoltsInspecotDrawer.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Editor/BoltsTools/BoltsSavingWindow.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Editor/BoltsTools/BoltsSmallTools.cs" root0="FORCE_HIGHLIGHTING" />

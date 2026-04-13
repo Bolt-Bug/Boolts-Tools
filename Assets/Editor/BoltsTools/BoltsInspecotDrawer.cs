@@ -194,7 +194,7 @@ namespace Editor.BoltsTools
             }
 
             BoltsSaveAttribute bsa = (BoltsSaveAttribute)attribute;
-            List<string> names = GetVariableNames(bsa.filterType);
+            List<string> names = GetVariableNames(bsa.filterType, bsa.saveIndex);
 
             EditorGUI.BeginProperty(position, label, property);
 
@@ -238,7 +238,7 @@ namespace Editor.BoltsTools
             EditorGUI.EndProperty();
         }
 
-        List<string> GetVariableNames(SavedVariableType filter)
+        List<string> GetVariableNames(SavedVariableType filter, int saveFile)
         {
             List<string> names = new();
 
@@ -257,7 +257,7 @@ namespace Editor.BoltsTools
             if (settings == null)
                 return names;
 
-            string fullPath = settings.GetFullPath();
+            string fullPath = settings.GetFullPath(saveFile);
 
             if (!File.Exists(fullPath))
                 return names;

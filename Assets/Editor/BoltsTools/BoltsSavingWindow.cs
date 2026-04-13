@@ -53,8 +53,6 @@ namespace Editor.BoltsTools
                 EditorGUILayout.EndScrollView();
                 return;
             }
-            
-            // Add Defult Save
 
             EditorGUILayout.LabelField("Save Settings", EditorStyles.boldLabel);
 
@@ -71,11 +69,14 @@ namespace Editor.BoltsTools
             config.usePersistentDataPath =
                 EditorGUILayout.Toggle("Use Persistent Data Path", config.usePersistentDataPath);
             config.useEncryption = EditorGUILayout.Toggle("Use Encryption", config.useEncryption);
-
-            string fileToCheck = "";
             
             index = EditorGUILayout.Popup("Save File", index, config.fileName.ToArray());
-            fileToCheck = config.fileName[index];
+            int fileToCheck = index;
+            
+            if (GUILayout.Button("Add Default Save Values"))
+            {
+                AddDefaultValue.OpenWindow(fileToCheck);
+            }
             
             GUILayout.BeginHorizontal();
 
@@ -274,7 +275,6 @@ namespace Editor.BoltsTools
 
             // Display Classes (read-only for now)
             if (sd.classes is { Count: > 0 })
-
             {
                 EditorGUILayout.LabelField("Classes:", EditorStyles.boldLabel);
                 for (int i = 0; i < sd.classes.Count; i++)
@@ -311,10 +311,19 @@ namespace Editor.BoltsTools
 
     public class AddDefaultValue : EditorWindow
     {
-        static string fileToChange;
+        static int fileToChange;
         SaveTypes saveType;
+
+        string valueName;
         
-        public static void OpenWindow(string file)
+        string savedString;
+        float savedFloat;
+        int savedInt;
+        Vector3 savedVector3;
+        Vector2 savedVector2;
+        bool savedBool;
+        
+        public static void OpenWindow(int file)
         {
             AddDefaultValue window = GetWindow<AddDefaultValue>(true, "Save Settings Window", true);
 
@@ -327,6 +336,185 @@ namespace Editor.BoltsTools
         void OnGUI()
         {
             saveType = (SaveTypes)EditorGUILayout.EnumPopup(saveType);
+            
+            valueName = EditorGUILayout.TextField("Value Name",valueName);
+            
+            switch (saveType)
+            {
+                case SaveTypes.Float:
+                    savedFloat = EditorGUILayout.FloatField(savedFloat);
+                    break;
+                
+                case SaveTypes.Int:
+                    savedInt = EditorGUILayout.IntField(savedInt);
+                    break;
+                
+                case SaveTypes.Vector3:
+                    savedVector3 = EditorGUILayout.Vector3Field("",savedVector3);
+                    break;
+                
+                case SaveTypes.Vector2:
+                    savedVector2 = EditorGUILayout.Vector2Field("", savedVector2);
+                    break;
+                
+                case SaveTypes.String:
+                    savedString = EditorGUILayout.TextField(savedString);
+                    break;
+                
+                case SaveTypes.Bool:
+                    savedBool = EditorGUILayout.Toggle(savedBool);
+                    break;
+            }
+
+            if (GUILayout.Button("Add Value"))
+            {
+                if (string.IsNullOrEmpty(valueName))
+                {
+                    Debug.LogError("Value Name Can Not Be Empty");
+                    return;
+                }
+                
+                SavingConfigAsset settings = BoltsSave._settings;
+
+                while (settings.defaults.Count <= fileToChange)
+                    settings.defaults.Add(new SaveFileDefaults());
+                
+                SaveFileDefaults def = settings.defaults[fileToChange];
+                
+                switch (saveType)
+                {
+                    case SaveTypes.Float:
+                        def.floats.Add(new SaveFloat { name = valueName, value = savedFloat });
+                        break;
+                    case SaveTypes.Int:
+                        def.ints.Add(new SaveInt { name = valueName, value = savedInt });
+                        break;
+                    case SaveTypes.Vector3:
+                        def.Vector3s.Add(new SaveVector3 { name = valueName, value = savedVector3 });
+                        break;
+                    case SaveTypes.Vector2:
+                        def.Vector2s.Add(new SaveVector2 { name = valueName, value = savedVector2 });
+                        break;
+                    case SaveTypes.String:
+                        def.strings.Add(new SaveString { name = valueName, value = savedString });
+                        break;
+                    case SaveTypes.Bool:
+                        def.bools.Add(new SaveBool { name = valueName, value = savedBool });
+                        break;
+                }
+                
+                EditorUtility.SetDirty(settings);
+                AssetDatabase.SaveAssets();
+
+                valueName = "";
+                Repaint();
+            }
+            
+            SavingConfigAsset s = BoltsSave._settings;
+            
+            if (s == null || s.defaults == null || fileToChange >= s.defaults.Count)
+                return;
+            
+            SaveFileDefaults current = s.defaults[fileToChange];
+
+            EditorGUILayout.Space(10);
+            EditorGUILayout.LabelField("Existing Defaults", EditorStyles.boldLabel);
+
+            bool dirty = false;
+
+            switch (saveType)
+            {
+                case SaveTypes.Float:
+                    for (int i = 0; i < current.floats.Count; i++)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        
+                        current.floats[i].name = EditorGUILayout.TextField(current.floats[i].name, GUILayout.Width(150));
+                        current.floats[i].value = EditorGUILayout.FloatField(current.floats[i].value);
+                        
+                        if(GUILayout.Button("X", GUILayout.Width(25))) { current.floats.RemoveAt(i); dirty = true; }
+                        
+                        EditorGUILayout.EndHorizontal();
+                    }
+                    break;
+                
+                case SaveTypes.Int:
+                    for (int i = 0; i < current.ints.Count; i++)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        
+                        current.ints[i].name = EditorGUILayout.TextField(current.ints[i].name, GUILayout.Width(150));
+                        current.ints[i].value = EditorGUILayout.IntField(current.ints[i].value);
+                        
+                        if(GUILayout.Button("X", GUILayout.Width(25))) { current.ints.RemoveAt(i); dirty = true; }
+                        
+                        EditorGUILayout.EndHorizontal();
+                    }
+                    break;
+                
+                case SaveTypes.Vector3:
+                    for (int i = 0; i < current.Vector3s.Count; i++)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        
+                        current.Vector3s[i].name = EditorGUILayout.TextField(current.Vector3s[i].name, GUILayout.Width(150));
+                        current.Vector3s[i].value = EditorGUILayout.Vector3Field("", current.Vector3s[i].value);
+                        
+                        if(GUILayout.Button("X", GUILayout.Width(25))) { current.Vector3s.RemoveAt(i); dirty = true; }
+                        
+                        EditorGUILayout.EndHorizontal();
+                    }
+                    break;
+                
+                case SaveTypes.Vector2:
+                    for (int i = 0; i < current.Vector2s.Count; i++)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        
+                        current.Vector2s[i].name = EditorGUILayout.TextField(current.Vector2s[i].name, GUILayout.Width(150));
+                        current.Vector2s[i].value = EditorGUILayout.Vector2Field("", current.Vector2s[i].value);
+                        
+                        if(GUILayout.Button("X", GUILayout.Width(25))) { current.Vector2s.RemoveAt(i); dirty = true; }
+                        
+                        EditorGUILayout.EndHorizontal();
+                    }
+                    break;
+                
+                case SaveTypes.String:
+                    for (int i = 0; i < current.strings.Count; i++)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        
+                        current.strings[i].name = EditorGUILayout.TextField(current.strings[i].name, GUILayout.Width(150));
+                        current.strings[i].value = EditorGUILayout.TextField(current.strings[i].value);
+                        
+                        if(GUILayout.Button("X", GUILayout.Width(25))) { current.strings.RemoveAt(i); dirty = true; }
+                        
+                        EditorGUILayout.EndHorizontal();
+                    }
+                    break;
+                
+                case SaveTypes.Bool:
+                    for (int i = 0; i < current.bools.Count; i++)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        
+                        current.bools[i].name = EditorGUILayout.TextField(current.bools[i].name, GUILayout.Width(150));
+                        current.bools[i].value = EditorGUILayout.Toggle(current.bools[i].value);
+                        
+                        if(GUILayout.Button("X", GUILayout.Width(25))) { current.bools.RemoveAt(i); dirty = true; }
+                        
+                        EditorGUILayout.EndHorizontal();
+                    }
+                    break;
+            }
+
+            if (dirty)
+            {
+                EditorUtility.SetDirty(s);
+                AssetDatabase.SaveAssets();
+                Repaint();
+            }
         }
     }
     
