@@ -6,6 +6,7 @@ using BoltsTools;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEditor.Animations;
 
 namespace Editor.BoltsTools
 {
@@ -327,17 +328,22 @@ namespace Editor.BoltsTools
                 return;
             }
 
-            var asset = assetProperty.objectReferenceValue as Animator;
+            AnimationClip[] clips = null;
+            
+            var asAnimator = assetProperty.objectReferenceValue as Animator;
+            var asController = assetProperty.objectReferenceValue as AnimatorController;
 
-            if (asset == null)
+            if (asAnimator != null)
+                clips = asAnimator.runtimeAnimatorController.animationClips;
+            else if (asController != null)
+                clips = asController.animationClips;
+            else
             {
-                EditorGUI.LabelField(position, label.text, "Field is not an BoltsAnimationClip.");
+                EditorGUI.LabelField(position, label.text, "Field is not an Animator Or Controller");
                 EditorGUI.EndProperty();
 
                 return;
             }
-
-            var clips = asset.runtimeAnimatorController.animationClips;
 
             if (clips.Length == 0)
             {
@@ -356,6 +362,75 @@ namespace Editor.BoltsTools
             int newIndex = EditorGUI.Popup(position, label.text, index, clipNames);
             property.stringValue = clipNames[newIndex];
 
+            EditorGUI.EndProperty();
+        }
+    }
+
+    [CustomPropertyDrawer(typeof(BoltsAnimationParamAttribute)) ]
+    public class BoltsAnimatorParameterDrawer : PropertyDrawer
+    {
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            var attr = (BoltsAnimationParamAttribute)attribute;
+
+            EditorGUI.BeginProperty(position, label, property);
+
+            if (property.propertyType != SerializedPropertyType.String)
+            {
+                EditorGUI.LabelField(position, label.text, "Use [BoltsAnimatorParameter] On A String Field.");
+                EditorGUI.EndProperty();
+                return;
+            }
+
+            var assetProperty = property.serializedObject.FindProperty(attr.animator);
+            
+            if(assetProperty == null || assetProperty.objectReferenceValue == null)
+            {
+                EditorGUI.PropertyField(position, property, label);
+                EditorGUI.HelpBox(position, $"BoltsAnimatorParameter: '{attr.animator}' Not Found.", MessageType.Error);
+                return;
+            }
+
+            AnimatorControllerParameter[] parameters = null;
+
+            var asAnimator = assetProperty.objectReferenceValue as Animator;
+            var asController = assetProperty.objectReferenceValue as AnimatorController;
+
+            if (asAnimator != null)
+                parameters = asAnimator.parameters;
+            else if (asController != null)
+                parameters = asController.parameters;
+            else
+            {
+                EditorGUI.LabelField(position, label.text, "Field Is Not An Animator Or AnimatorController.");
+                EditorGUI.EndProperty();
+                return;
+            }
+
+            if (attr.filterType.HasValue)
+                parameters = parameters.Where(p => p.type == attr.filterType.Value).ToArray();
+            
+            if (parameters.Length == 0)
+            {
+                string filter = attr.filterType.HasValue ? attr.filterType.Value.ToString() + " " : "";
+                EditorGUI.LabelField(position, label.text, $"No {filter}Parameters Found");
+                EditorGUI.EndProperty();
+                return;
+            }
+
+            string[] displayNames = parameters
+                .Select(p => $"{p.name} ({p.type})").ToArray();
+
+            string[] paramNames = parameters
+                .Select(p => p.name).ToArray();
+
+            int index = Mathf.Max(0, Array.IndexOf(paramNames, property.stringValue));
+            if (index >= paramNames.Length)
+                index = 0;
+
+            int newIndex = EditorGUI.Popup(position, label.text, index, displayNames);
+            property.stringValue = paramNames[newIndex];
+            
             EditorGUI.EndProperty();
         }
     }
