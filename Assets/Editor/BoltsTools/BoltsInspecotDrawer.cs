@@ -409,11 +409,192 @@ namespace Editor.BoltsTools
             }
         }
 
-        private void OnDisable()
+        void OnDisable()
         {
             if (boxColliderEditor != null)
                 DestroyImmediate(boxColliderEditor);
         }
+    }
+    [CustomEditor(typeof(BoltsMaterialInstance))]
+    public class BoltsMaterialDrawer : UnityEditor.Editor
+    {
+        MaterialEditor matEditor;
+        Material trackedMat;
+
+        Material[] originalMaterials;
+        Renderer trackedRenderer;
+        
+        public override void OnInspectorGUI()
+        {
+            EditorGUILayout.HelpBox("Don't Use For Finale Build!!!", MessageType.Warning);
+            
+            BoltsMaterialInstance target = (BoltsMaterialInstance)this.target;
+            
+            EditorGUI.BeginChangeCheck();
+            DrawInspector(target);
+            bool changed = EditorGUI.EndChangeCheck();
+            
+            if (target.targetRenderer == null)
+            {
+                EditorGUILayout.HelpBox("Assign A Renderer.", MessageType.Info);
+                CleanupEditor();
+                return;
+            }
+
+            if (target.targetRenderer != trackedRenderer)
+            {
+                originalMaterials = target.targetRenderer.sharedMaterials.Clone()
+                    as Material[];
+                trackedRenderer = target.targetRenderer;
+            }
+            
+            if(changed && target.mat != trackedMat)
+                ApplyInstance(target);
+            
+            if(target.mat != null && target.instancedMaterial == null)
+                ApplyInstance(target);
+
+            if (target.instancedMaterial == null)
+            {
+                EditorGUILayout.HelpBox("Assign A Material Above", MessageType.Info);
+                CleanupEditor();
+                return;
+            }
+
+            if (target.instancedMaterial != trackedMat || matEditor == null)
+            {
+                CleanupEditor();
+                matEditor = (MaterialEditor)CreateEditor(target.instancedMaterial);
+                trackedMat = target.instancedMaterial;
+            }
+            
+            EditorGUILayout.Space(8);
+            Rect r = EditorGUILayout.GetControlRect(false, 1);
+            EditorGUI.DrawRect(r, new Color(0.5f,0.5f,0.5f,0.3f));
+            EditorGUILayout.Space(4);
+
+            if (GUILayout.Button("Reset Mat"))
+                PushToRenderer(target, target.mat, target.materialIndex);
+        }
+
+        void ApplyInstance(BoltsMaterialInstance target)
+        {
+            if (target.mat == null)
+            {
+                target.instancedMaterial = null;
+                PushToRenderer(target, null, target.materialIndex);
+                return;
+            }
+
+            target.instancedMaterial = Instantiate(target.mat);
+            target.instancedMaterial.name = target.mat.name + " (Instance)";
+            
+            PushToRenderer(target, target.instancedMaterial, target.materialIndex);
+
+            trackedMat = target.instancedMaterial;
+            
+            EditorUtility.SetDirty(target);
+        }
+
+        static void PushToRenderer(BoltsMaterialInstance target, Material mat, int index)
+        {
+            SerializedObject so = new SerializedObject(target.targetRenderer);
+            SerializedProperty mats = so.FindProperty("m_Materials");
+            
+            if(index >= mats.arraySize) return;
+
+            mats.GetArrayElementAtIndex(index).objectReferenceValue = mat;
+
+            so.ApplyModifiedProperties();
+        }
+
+        void CleanupEditor()
+        {
+            if (matEditor != null)
+            {
+                DestroyImmediate(matEditor);
+                matEditor = null;
+                trackedMat = null;
+            }
+        }
+        
+        void DrawInspector(BoltsMaterialInstance target)
+        {
+            SerializedObject so = serializedObject;
+            so.Update();
+
+            EditorGUILayout.PropertyField(so.FindProperty("targetRenderer"));
+
+            SerializedProperty indexProp = so.FindProperty("materialIndex");
+            SerializedProperty matProp = so.FindProperty("mat");
+            
+            if (target.targetRenderer != null)
+            {
+                int count = target.targetRenderer.sharedMaterials.Length;
+                if (count <= 1)
+                {
+                    indexProp.intValue = 0;
+                    EditorGUI.BeginDisabledGroup(true);
+                    EditorGUILayout.IntField("Material Index", 0);
+                    EditorGUI.EndDisabledGroup();
+                }
+                else
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.PrefixLabel("MaterialIndex");
+                    
+                    EditorGUI.BeginDisabledGroup(indexProp.intValue <= 0);
+                    if (GUILayout.Button("◀", EditorStyles.miniButtonLeft, GUILayout.Width(28)))
+                    {
+                        PushToRenderer(target, target.mat, target.materialIndex);
+                        
+                        indexProp.intValue--;
+                        so.ApplyModifiedProperties();
+
+                        matProp.objectReferenceValue = originalMaterials[indexProp.intValue];
+                        so.ApplyModifiedProperties();
+
+                        target.materialIndex = indexProp.intValue;
+                        ApplyInstance(target);
+                        EditorUtility.SetDirty(target);
+                    }
+                    EditorGUI.EndDisabledGroup();
+                    
+                    EditorGUILayout.LabelField(
+                        indexProp.intValue.ToString(),
+                        EditorStyles.centeredGreyMiniLabel,
+                        GUILayout.Width(28));
+                    
+                    EditorGUI.BeginDisabledGroup(indexProp.intValue >= count -1);
+                    if (GUILayout.Button("▶", EditorStyles.miniButtonRight, GUILayout.Width(28)))
+                    {
+                        PushToRenderer(target, target.mat, target.materialIndex);
+                        
+                        indexProp.intValue++;
+                        so.ApplyModifiedProperties();
+
+                        matProp.objectReferenceValue = originalMaterials[indexProp.intValue];
+                        so.ApplyModifiedProperties();
+
+                        target.materialIndex = indexProp.intValue;
+                        ApplyInstance(target);
+                        EditorUtility.SetDirty(target);
+                    }
+                    EditorGUI.EndDisabledGroup();
+                    
+                    EditorGUILayout.EndHorizontal();
+                }
+            }
+            else
+                EditorGUILayout.PropertyField(indexProp);
+            
+            EditorGUILayout.PropertyField(matProp);
+
+            so.ApplyModifiedProperties();
+        }
+
+        void OnDisable() => CleanupEditor();
+        void OnDestroy() => CleanupEditor();
     }
     
     public class NonWindowTools

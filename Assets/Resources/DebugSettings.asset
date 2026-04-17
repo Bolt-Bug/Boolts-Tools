@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   keyToOpenDebug: 284
   showFPS: 1
-  showPlayerPos: 1
+  showPlayerPos: 0
   playerTag: Player
   keyToOpenCommands: 283
