@@ -448,7 +448,7 @@ namespace BoltsTools
         int selectedIndex;
         string assetName;
 
-        [MenuItem("Tools/Bolts Tools/Small Tools/Make SO #d")]
+        [MenuItem("Tools/Bolts Tools/Small Tools/Make SO #z")]
         public static void OpenWindow()
         {
             GetWindow<MakeScriptableObject>();

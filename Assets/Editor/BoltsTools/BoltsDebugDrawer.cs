@@ -2,7 +2,7 @@ using System;
 using BoltsTools;
 using UnityEditor;
 
-namespace Editor.BoltsTools
+namespace editor.BoltsTools
 {
     [CustomEditor(typeof(BoltsDebugMenuSettings))]
     public class BoltsDebugDrawer : UnityEditor.Editor

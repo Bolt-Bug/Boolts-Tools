@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
@@ -12,25 +11,36 @@ namespace BoltsTools
     {
         public static BoltsCommands command;
 
-        List<Command> commands = new();
+        static readonly List<Command> commands = new();
+        public List<Command> publicCommands = new();
+
+        public KeyCode keyToOpenCommands = KeyCode.F2;
+        
+        [BoltsToolTip("Shows The Cursor When Typing A Command")]
+        public bool unlockCursor = true;
 
         public static bool isTyping;
 
         string commandTyped = "";
         string lastCommand = "";
 
+        static bool addedCommand;
+
         void Update()
         {
-            if (LoadBoltsDebugMenu._settings != null &&
-                Input.GetKeyDown(LoadBoltsDebugMenu._settings.keyToOpenCommands) && !isTyping)
-            {
+            if (Input.GetKeyDown(keyToOpenCommands) && !isTyping)
                 isTyping = true;
-            }
 
-            if (isTyping)
+            if (isTyping && unlockCursor)
             {
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
+            }
+
+            if (addedCommand)
+            {
+                publicCommands = commands;
+                addedCommand = false;
             }
         }
 
@@ -38,36 +48,68 @@ namespace BoltsTools
         /// Adds A Command
         /// </summary>
         /// <param name="commandName">The Name For The Command</param>
-        /// <param name="methodName">The Name Of The Method The Command Should Run (Dont Add Arguments)</param>
+        /// <param name="methodName">The Name Of The Method The Command Should Run (Don't Add Arguments)</param>
         /// <param name="target">What Script On What Game Object Should Run The Command</param>
-        public void AddCommand(string commandName, string methodName, MonoBehaviour target)
+        /// <param name="description">The Commands Description (Can Be Left Empty)</param>
+        public static void AddCommand(string commandName, string methodName, MonoBehaviour target, string description = "")
         {
+            string finalCommandName = commandName.Replace(" ", "");
             string finalName = methodName.Replace(" ", "");
+
+            int index = -1;
+            index = commands.FindIndex(x => x.name == finalCommandName);
+            if (index > -1)
+            {
+                MethodInfo method = target.GetType().GetMethod(finalName,
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                if (method == null)
+                {
+                    Debug.Log($"No Method Named: {methodName} Found");
+                    return;
+                }
+
+                commands[index].method = method;
+                commands[index].action = null;
+                commands[index].description = description;
+            }
+            else
+            {
+                MethodInfo method = target.GetType().GetMethod(finalName,
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                if (method == null)
+                {
+                    Debug.Log($"No Method Named: {methodName} Found");
+                    return;
+                }
+
+                commands.Add(new()
+                    { name = finalCommandName, method = method, target = target, description = description });
+            }
+
+            addedCommand = true;
+        }
+        /// <summary>
+        /// Adds A Command
+        /// </summary>
+        /// <param name="commandName">The Name For The Command</param>
+        /// <param name="action">The Action To Do</param>
+        /// <param name="description">The Commands Description (Can Be Left Empty)</param>
+        public static void AddCommand(string commandName, Action action, string description = "")
+        {
+            string finalCommandName = commandName.Replace(" ", "");
 
             int index = -1;
             index = commands.FindIndex(x => x.name == commandName);
             if (index > -1)
             {
-                MethodInfo method = target.GetType().GetMethod(methodName,
-                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                if (method == null)
-                {
-                    Debug.Log($"No Method Named: {methodName} Found");
-                }
-
-                commands[index].method = method;
+                commands[index].action = action;
+                commands[index].method = null;
+                commands[index].description = description;
             }
             else
-            {
-                MethodInfo method = target.GetType().GetMethod(methodName,
-                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                if (method == null)
-                {
-                    Debug.Log($"No Method Named: {methodName} Found");
-                }
+                commands.Add(new() { name = finalCommandName, action = action, description = description });
 
-                commands.Add(new() { name = commandName, method = method, target = target });
-            }
+            addedCommand = true;
         }
 
         void RunCommand()
@@ -100,6 +142,13 @@ namespace BoltsTools
             }
 
             Command cmd = commands[commandIndex];
+
+            if (cmd.action != null)
+            {
+                cmd.action?.Invoke();
+                return;
+            }
+            
             ParameterInfo[] parameters = cmd.method.GetParameters();
             List<object> arguments = new();
 
@@ -214,6 +263,14 @@ namespace BoltsTools
                 if (commandTyped.EndsWith("\n") && commandTyped.Length > 0)
                     RunCommand();
 
+                if (Event.current.type == EventType.KeyDown)
+                {
+                    if (Event.current.keyCode == KeyCode.Tab)
+                        focusedArea = focusedArea == "Command" ? "LastCommand" : "Command";
+                }
+                
+                GUI.FocusControl(focusedArea);
+                
                 if (lastCommand.Length <= 0) return;
                 float width = style.CalcSize(new GUIContent(lastCommand)).x;
                 float height = style.CalcHeight(new GUIContent(lastCommand), width);
@@ -227,14 +284,6 @@ namespace BoltsTools
                 GUI.TextArea(lastCommandRect,
                     "<color=white>" + lastCommand,
                     lastCommandStyle);
-
-                if (Event.current.type == EventType.KeyDown)
-                {
-                    if (Event.current.keyCode == KeyCode.Tab)
-                        focusedArea = focusedArea == "Command" ? "LastCommand" : "Command";
-                }
-                
-                GUI.FocusControl(focusedArea);
             }
         }
 
@@ -269,28 +318,50 @@ namespace BoltsTools
 
         public void ShowCommands()
         {
-            string allCommands = $"Command: {commands[0].name}    Method: {commands[0].method.Name}";
+            // Does "int = 1" So That There Is No Extra Space
+            string allCommands = $"Command: {commands[0].name}    Description: {commands[0].description}";
             for (int i = 1; i < commands.Count; i++)
-                allCommands += $"\nCommand: {commands[i].name}    Method: {commands[i].method.Name}";
+            {
+                allCommands += $"\nCommand: {commands[i].name}";
+                allCommands += string.IsNullOrEmpty(commands[i].description)
+                    ? commands[i].action == null
+                        ? $"    Method: {commands[i].method.Name}"
+                        : "    Method: Does An Action"
+                    : $"    Description: {commands[i].description}";
+            }
 
             lastCommand = allCommands;
+
+            isTyping = true;
         }
 
         void Awake()
         {
             command = this;
             
-            AddCommand("help", "ShowCommands", this);
+            AddCommand("help", "ShowCommands", this, "Shows This Menu");
         }
-    }
 
-    class Command
-    {
-        public string name;
-        public MethodInfo method;
-        public object target;
+        void Reset()
+        {
+            if (LoadBoltsDebugMenu._settings != null)
+            {
+                unlockCursor = LoadBoltsDebugMenu._settings.unlockCursor;
+                keyToOpenCommands = LoadBoltsDebugMenu._settings.keyToOpenCommands;
+            }
+        }
+
+        [Serializable]
+        public class Command
+        {
+            public string name;
+            public string description;
+            public MethodInfo method;
+            public Action action;
+            public object target;
+        }
     }
     
     [AttributeUsage(AttributeTargets.Field)]
-    public class CommandArgAttribute : Attribute{}
+    public abstract class CommandArgAttribute : Attribute{}
 }

@@ -13,17 +13,29 @@ namespace BoltsTools
 
         bool showDebug;
 
-        static List<DebugText> textToShow = new();
-        static List<DebugButton> buttonsToShow = new();
+        static readonly List<DebugText> textToShow = new();
+        static readonly List<DebugButton> buttonsToShow = new();
 
-        public static Transform player;
+        public KeyCode keyToOpenDebug = KeyCode.F3;
+        
+        public bool showFPS, showPlayerPos;
+        
+        public string playerTag = "Player";
+        
+        public Transform player;
         
         void OnGUI()
         {
             if(!showDebug) return;
 
-            if (LoadBoltsDebugMenu._settings.showPlayerPos && player != null)
+            if (showPlayerPos && player != null)
             {
+                if (player == null)
+                {
+                    Debug.LogError("Player Not Assigned!!!");
+                    return;
+                }
+                
                 Vector3 playerPos = player.position;
                 
                 GUIStyle style = new GUIStyle();
@@ -40,7 +52,7 @@ namespace BoltsTools
                 GUI.TextArea(playerPosRect, text, style);
             }
             
-            if (LoadBoltsDebugMenu._settings.showFPS)
+            if (showFPS)
             {
                 Rect fpsRect = new(50, 50, 225,75);
                 GUI.TextArea(fpsRect, $"<size=50>FPS: {frames}", new GUIStyle(){alignment = TextAnchor.MiddleLeft});
@@ -154,11 +166,6 @@ namespace BoltsTools
                 Debug.LogError($"Could Not Find Debug Button Named {name}");
         }
         
-        public static void UpdatePlayerOBJ(Transform newPlayer)
-        {
-            player = newPlayer;
-        }
-        
         void Update()
         {
             frames = (float)Decimal.Round((decimal)(1 / Time.unscaledDeltaTime));
@@ -169,19 +176,39 @@ namespace BoltsTools
                 time = 0;
             }
 
-            if (Input.GetKeyDown(LoadBoltsDebugMenu._settings.keyToOpenDebug))
+            if (Input.GetKeyDown(keyToOpenDebug))
                 showDebug = !showDebug;
 
             if (player == null && LoadBoltsDebugMenu._settings.showPlayerPos)
-                player = GameObject.FindGameObjectWithTag(LoadBoltsDebugMenu._settings.playerTag).transform;
+                player = GameObject.FindGameObjectWithTag(playerTag).transform;
         }
 
         void Awake()
         {
+            LoadBoltsDebugMenu.Initialize();
+            
             if (Instance == null)
                 Instance = this;
             else if(Instance != this)
                 Destroy(gameObject);
+        }
+
+        void Reset()
+        {
+            LoadBoltsDebugMenu.Initialize();
+            
+            if (Instance == null)
+                Instance = this;
+            else if(Instance != this)
+                Destroy(gameObject);
+            
+            if (LoadBoltsDebugMenu._settings != null)
+            {
+                showFPS = LoadBoltsDebugMenu._settings.showFPS;
+                showPlayerPos = LoadBoltsDebugMenu._settings.showPlayerPos;
+                keyToOpenDebug = LoadBoltsDebugMenu._settings.keyToOpenDebug;
+                playerTag = LoadBoltsDebugMenu._settings.playerTag;
+            }
         }
     }
 
@@ -205,7 +232,7 @@ namespace BoltsTools
         public Action onClick;
     }
     
-    class LoadBoltsDebugMenu
+    static class LoadBoltsDebugMenu
     {
         public static BoltsDebugMenuSettings _settings;
         static bool _isLoading;
@@ -231,12 +258,20 @@ namespace BoltsTools
 
             _isLoading = false;
         }
-        
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        public static void SpawnObj()
+
+        [MenuItem("GameObject/Bolts Debug Object #t", false, 5)]
+        static void CreateOBJ(MenuCommand menuCommand)
         {
-            if(BoltsDebugMenu.Instance == null)
-                new GameObject("Bolts Debug", new []{typeof(BoltsDebugMenu), typeof(BoltsCommands)});
+            GameObject obj = new GameObject("Bolts Debug");
+
+            obj.AddComponent<BoltsDebugMenu>();
+            obj.AddComponent<BoltsCommands>();
+            
+            GameObjectUtility.SetParentAndAlign(obj,menuCommand.context as GameObject);
+            
+            Undo.RegisterCreatedObjectUndo(obj, "Create Bots Debug Object");
+
+            Selection.activeObject = obj;
         }
     }
 }

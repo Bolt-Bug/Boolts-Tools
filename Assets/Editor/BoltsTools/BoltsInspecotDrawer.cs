@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEditor.Animations;
 
-namespace Editor.BoltsTools
+namespace editor.BoltsTools
 {
     [CustomPropertyDrawer(typeof(BoltsCommentAttribute))]
     public class BoltsCommentDrawer : PropertyDrawer
@@ -91,7 +91,7 @@ namespace Editor.BoltsTools
 
             string[] mapNames = maps.Select(m => m.name).ToArray();
 
-            int index = Mathf.Max(0, System.Array.IndexOf(mapNames, property.stringValue));
+            int index = Mathf.Max(0, Array.IndexOf(mapNames, property.stringValue));
             if (index >= mapNames.Length)
                 index = 0;
 
@@ -328,7 +328,7 @@ namespace Editor.BoltsTools
                 return;
             }
 
-            AnimationClip[] clips = null;
+            AnimationClip[] clips;
             
             var asAnimator = assetProperty.objectReferenceValue as Animator;
             var asController = assetProperty.objectReferenceValue as AnimatorController;
@@ -355,7 +355,7 @@ namespace Editor.BoltsTools
 
             string[] clipNames = clips.Select(m => m.name).ToArray();
 
-            int index = Mathf.Max(0, System.Array.IndexOf(clipNames, property.stringValue));
+            int index = Mathf.Max(0, Array.IndexOf(clipNames, property.stringValue));
             if (index >= clipNames.Length)
                 index = 0;
 
@@ -391,7 +391,7 @@ namespace Editor.BoltsTools
                 return;
             }
 
-            AnimatorControllerParameter[] parameters = null;
+            AnimatorControllerParameter[] parameters;
 
             var asAnimator = assetProperty.objectReferenceValue as Animator;
             var asController = assetProperty.objectReferenceValue as AnimatorController;
@@ -435,10 +435,40 @@ namespace Editor.BoltsTools
         }
     }
 
-    [CustomEditor(typeof(BoltsBoxCollider))]
-    public class BoltsBoxColliderDrawer : UnityEditor.Editor
+    [CustomPropertyDrawer(typeof(BoltsToolTipAttribute))]
+    public class BoltsToolTipDrawer : PropertyDrawer
     {
-        UnityEditor.Editor boxColliderEditor;
+        const float IconSize = 18;
+
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            BoltsToolTipAttribute bt = (BoltsToolTipAttribute)attribute;
+
+            Rect fieldRect = new Rect(position.x + IconSize, position.y, position.width - IconSize, position.height);
+            Rect iconRect = new Rect(position.x, position.y + (position.height - IconSize) / 2, IconSize,
+                IconSize);
+
+            GUIContent labelWithTooltio = new GUIContent(label.text, label.image, bt.msg);
+            
+            EditorGUI.PropertyField(fieldRect, property, labelWithTooltio);
+
+            GUIContent icon = EditorGUIUtility.IconContent("console.infoicon.inactive.sml@2x");
+            icon.tooltip = bt.msg;
+
+            if (GUI.Button(iconRect, icon, GUIStyle.none))
+                EditorUtility.DisplayDialog("Info", bt.msg, "OK");
+        }
+
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            return EditorGUI.GetPropertyHeight(property, label, true);
+        }
+    }
+
+    [CustomEditor(typeof(BoltsBoxCollider))]
+    public class BoltsBoxColliderDrawer : Editor
+    {
+        Editor boxColliderEditor;
 
         public override void OnInspectorGUI()
         {
@@ -478,7 +508,7 @@ namespace Editor.BoltsTools
                 customBC.boxCollider.hideFlags = HideFlags.HideInInspector;
 
                 if (boxColliderEditor == null)
-                    boxColliderEditor = UnityEditor.Editor.CreateEditor(customBC.boxCollider);
+                    boxColliderEditor = Editor.CreateEditor(customBC.boxCollider);
 
                 boxColliderEditor.DrawDefaultInspector();
             }
@@ -491,7 +521,7 @@ namespace Editor.BoltsTools
         }
     }
     [CustomEditor(typeof(BoltsMaterialInstance))]
-    public class BoltsMaterialDrawer : UnityEditor.Editor
+    public class BoltsMaterialDrawer : Editor
     {
         MaterialEditor matEditor;
         Material trackedMat;
@@ -503,44 +533,44 @@ namespace Editor.BoltsTools
         {
             EditorGUILayout.HelpBox("Don't Use For Finale Build!!!", MessageType.Warning);
             
-            BoltsMaterialInstance target = (BoltsMaterialInstance)this.target;
+            BoltsMaterialInstance bm = (BoltsMaterialInstance)this.target;
             
             EditorGUI.BeginChangeCheck();
-            DrawInspector(target);
+            DrawInspector(bm);
             bool changed = EditorGUI.EndChangeCheck();
             
-            if (target.targetRenderer == null)
+            if (bm.targetRenderer == null)
             {
                 EditorGUILayout.HelpBox("Assign A Renderer.", MessageType.Info);
                 CleanupEditor();
                 return;
             }
 
-            if (target.targetRenderer != trackedRenderer)
+            if (bm.targetRenderer != trackedRenderer)
             {
-                originalMaterials = target.targetRenderer.sharedMaterials.Clone()
+                originalMaterials = bm.targetRenderer.sharedMaterials.Clone()
                     as Material[];
-                trackedRenderer = target.targetRenderer;
+                trackedRenderer = bm.targetRenderer;
             }
             
-            if(changed && target.mat != trackedMat)
-                ApplyInstance(target);
+            if(changed && bm.mat != trackedMat)
+                ApplyInstance(bm);
             
-            if(target.mat != null && target.instancedMaterial == null)
-                ApplyInstance(target);
+            if(bm.mat != null && bm.instancedMaterial == null)
+                ApplyInstance(bm);
 
-            if (target.instancedMaterial == null)
+            if (bm.instancedMaterial == null)
             {
                 EditorGUILayout.HelpBox("Assign A Material Above", MessageType.Info);
                 CleanupEditor();
                 return;
             }
 
-            if (target.instancedMaterial != trackedMat || matEditor == null)
+            if (bm.instancedMaterial != trackedMat || matEditor == null)
             {
                 CleanupEditor();
-                matEditor = (MaterialEditor)CreateEditor(target.instancedMaterial);
-                trackedMat = target.instancedMaterial;
+                matEditor = (MaterialEditor)CreateEditor(bm.instancedMaterial);
+                trackedMat = bm.instancedMaterial;
             }
             
             EditorGUILayout.Space(8);
@@ -549,26 +579,26 @@ namespace Editor.BoltsTools
             EditorGUILayout.Space(4);
 
             if (GUILayout.Button("Reset Mat"))
-                PushToRenderer(target, target.mat, target.materialIndex);
+                PushToRenderer(bm, bm.mat, bm.materialIndex);
         }
 
-        void ApplyInstance(BoltsMaterialInstance target)
+        void ApplyInstance(BoltsMaterialInstance bm)
         {
-            if (target.mat == null)
+            if (bm.mat == null)
             {
-                target.instancedMaterial = null;
-                PushToRenderer(target, null, target.materialIndex);
+                bm.instancedMaterial = null;
+                PushToRenderer(bm, null, bm.materialIndex);
                 return;
             }
 
-            target.instancedMaterial = Instantiate(target.mat);
-            target.instancedMaterial.name = target.mat.name + " (Instance)";
+            bm.instancedMaterial = Instantiate(bm.mat);
+            bm.instancedMaterial.name = bm.mat.name + " (Instance)";
             
-            PushToRenderer(target, target.instancedMaterial, target.materialIndex);
+            PushToRenderer(bm, bm.instancedMaterial, bm.materialIndex);
 
-            trackedMat = target.instancedMaterial;
+            trackedMat = bm.instancedMaterial;
             
-            EditorUtility.SetDirty(target);
+            EditorUtility.SetDirty(bm);
         }
 
         static void PushToRenderer(BoltsMaterialInstance target, Material mat, int index)
@@ -593,7 +623,7 @@ namespace Editor.BoltsTools
             }
         }
         
-        void DrawInspector(BoltsMaterialInstance target)
+        void DrawInspector(BoltsMaterialInstance bm)
         {
             SerializedObject so = serializedObject;
             so.Update();
@@ -603,9 +633,9 @@ namespace Editor.BoltsTools
             SerializedProperty indexProp = so.FindProperty("materialIndex");
             SerializedProperty matProp = so.FindProperty("mat");
             
-            if (target.targetRenderer != null)
+            if (bm.targetRenderer != null)
             {
-                int count = target.targetRenderer.sharedMaterials.Length;
+                int count = bm.targetRenderer.sharedMaterials.Length;
                 if (count <= 1)
                 {
                     indexProp.intValue = 0;
@@ -621,7 +651,7 @@ namespace Editor.BoltsTools
                     EditorGUI.BeginDisabledGroup(indexProp.intValue <= 0);
                     if (GUILayout.Button("◀", EditorStyles.miniButtonLeft, GUILayout.Width(28)))
                     {
-                        PushToRenderer(target, target.mat, target.materialIndex);
+                        PushToRenderer(bm, bm.mat, bm.materialIndex);
                         
                         indexProp.intValue--;
                         so.ApplyModifiedProperties();
@@ -629,9 +659,9 @@ namespace Editor.BoltsTools
                         matProp.objectReferenceValue = originalMaterials[indexProp.intValue];
                         so.ApplyModifiedProperties();
 
-                        target.materialIndex = indexProp.intValue;
-                        ApplyInstance(target);
-                        EditorUtility.SetDirty(target);
+                        bm.materialIndex = indexProp.intValue;
+                        ApplyInstance(bm);
+                        EditorUtility.SetDirty(bm);
                     }
                     EditorGUI.EndDisabledGroup();
                     
@@ -643,7 +673,7 @@ namespace Editor.BoltsTools
                     EditorGUI.BeginDisabledGroup(indexProp.intValue >= count -1);
                     if (GUILayout.Button("▶", EditorStyles.miniButtonRight, GUILayout.Width(28)))
                     {
-                        PushToRenderer(target, target.mat, target.materialIndex);
+                        PushToRenderer(bm, bm.mat, bm.materialIndex);
                         
                         indexProp.intValue++;
                         so.ApplyModifiedProperties();
@@ -651,9 +681,9 @@ namespace Editor.BoltsTools
                         matProp.objectReferenceValue = originalMaterials[indexProp.intValue];
                         so.ApplyModifiedProperties();
 
-                        target.materialIndex = indexProp.intValue;
-                        ApplyInstance(target);
-                        EditorUtility.SetDirty(target);
+                        bm.materialIndex = indexProp.intValue;
+                        ApplyInstance(bm);
+                        EditorUtility.SetDirty(bm);
                     }
                     EditorGUI.EndDisabledGroup();
                     
@@ -672,7 +702,7 @@ namespace Editor.BoltsTools
         void OnDestroy() => CleanupEditor();
     }
     
-    public class NonWindowTools
+    public abstract class NonWindowTools
     {
         [MenuItem("Tools/Bolts Tools/Documentation #&d")]
         public static void OpenDocumentation()

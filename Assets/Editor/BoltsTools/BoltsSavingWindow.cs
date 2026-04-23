@@ -4,7 +4,7 @@ using BoltsTools;
 using UnityEditor;
 using UnityEngine;
 
-namespace Editor.BoltsTools
+namespace editor.BoltsTools
 {
     public class BoltsSavingWindow : EditorWindow
     {

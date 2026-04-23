@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a0ec6ebf-c246-41a8-a5a5-21f53fcf9a3f" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Assets/Resources/SaveSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/SaveSettings.asset" afterDir="false" />
-    </list>
+    <list default="true" id="a0ec6ebf-c246-41a8-a5a5-21f53fcf9a3f" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -21,6 +19,7 @@
     <setting file="file://$PROJECT_DIR$/Assets/BoltsTools/BoltsBoxCollider.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/BoltsTools/BoltsDebugMenu.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/BoltsTools/BoltsDebugMenuSettings.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/BoltsTools/BoltsMaterialInstance.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/BoltsTools/BoltsSave.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/BoltsTools/BoltsSaveAttribute.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/BoltsTools/SavingConfigAsset.cs" root0="FORCE_HIGHLIGHTING" />

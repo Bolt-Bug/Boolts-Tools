@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 namespace BoltsTools
 {
@@ -272,7 +275,7 @@ namespace BoltsTools
 
             if (_settings == null)
             {
-                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Saving");
+                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Getting Value");
 
                 return -1;
             }
@@ -282,7 +285,7 @@ namespace BoltsTools
             if (index > -1)
                 return sd.floats[index].value;
 
-            Debug.LogError($"Could Not Find Float Named: {name}");
+            Debug.LogError($"Could Not Find Float Named: {name}\nReturned -1");
             return -1;
         }
 
@@ -297,7 +300,7 @@ namespace BoltsTools
 
             if (_settings == null)
             {
-                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Saving");
+                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Getting Value");
 
                 return -1;
             }
@@ -307,7 +310,7 @@ namespace BoltsTools
             if (index > -1)
                 return sd.ints[index].value;
 
-            Debug.LogError($"Could Not Find Int Named: {name}");
+            Debug.LogError($"Could Not Find Int Named: {name}\nReturned -1");
             return -1;
         }
 
@@ -322,7 +325,7 @@ namespace BoltsTools
 
             if (_settings == null)
             {
-                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Saving");
+                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Getting Value");
 
                 return Vector3.zero;
             }
@@ -332,7 +335,7 @@ namespace BoltsTools
             if (index > -1)
                 return sd.Vector3s[index].value;
 
-            Debug.LogError($"Could Not Find Vector3 Named: {name}");
+            Debug.LogError($"Could Not Find Vector3 Named: {name}\nReturned Vector3.zero");
             return Vector3.zero;
         }
 
@@ -347,7 +350,7 @@ namespace BoltsTools
 
             if (_settings == null)
             {
-                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Saving");
+                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Getting Value");
 
                 return Vector2.zero;
             }
@@ -357,7 +360,7 @@ namespace BoltsTools
             if (index > -1)
                 return sd.Vector2s[index].value;
 
-            Debug.LogError($"Could Not Find Vector2 Named: {name}");
+            Debug.LogError($"Could Not Find Vector2 Named: {name}\nReturned Vector2.zero");
             return Vector2.zero;
         }
 
@@ -372,7 +375,7 @@ namespace BoltsTools
 
             if (_settings == null)
             {
-                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Saving");
+                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Getting Value");
 
                 return String.Empty;
             }
@@ -382,7 +385,7 @@ namespace BoltsTools
             if (index > -1)
                 return sd.strings[index].value;
 
-            Debug.LogError($"Could Not Find String Named: {name}");
+            Debug.LogError($"Could Not Find String Named: {name}\nReturned Empty String");
             return String.Empty;
         }
 
@@ -397,7 +400,7 @@ namespace BoltsTools
 
             if (_settings == null)
             {
-                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Saving");
+                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Getting Value");
 
                 return false;
             }
@@ -406,7 +409,7 @@ namespace BoltsTools
             if (index > -1)
                 return sd.bools[index].value;
 
-            Debug.LogError($"Could Not Find Bool Named: {name}");
+            Debug.LogError($"Could Not Find Bool Named: {name}\nReturned False");
             return false;
         }
 
@@ -421,7 +424,7 @@ namespace BoltsTools
 
             if (_settings == null)
             {
-                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Saving");
+                Debug.LogError("BoltSave Not Initialized. Call 'BoltSave.Initialize' Once Before Getting Value");
 
                 return new T();
             }
@@ -431,7 +434,7 @@ namespace BoltsTools
             if (index > -1)
                 return JsonUtility.FromJson<T>(sd.classes[index].value);
 
-            Debug.LogError($"Could Not Find Class Named: {name}");
+            Debug.LogError($"Could Not Find Class Named: {name}\nReturned New Class");
             return new T();
         }
 
@@ -448,7 +451,7 @@ namespace BoltsTools
             for (int i = 0; i <_settings.fileName.Count; i++)
                 LoadOrCreate(i);
             
-            Debug.Log("Save Settings loaded.");
+            Debug.Log("Save Settings Loaded.");
 
             _isLoading = false;
         }
@@ -487,6 +490,7 @@ namespace BoltsTools
         {
             SaveData newSD = new SaveData();
             SaveFile(newSD);
+            Debug.Log("Saved Is Reset");
         }
     }
 

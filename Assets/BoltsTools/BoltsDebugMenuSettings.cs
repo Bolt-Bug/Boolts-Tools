@@ -8,6 +8,9 @@ namespace BoltsTools
         public KeyCode keyToOpenDebug = KeyCode.F3;
 
         public bool showFPS, showPlayerPos;
+        
+        [BoltsToolTip("Shows The Cursor When Typing A Command")]
+        public bool unlockCursor = true;
 
         [HideInInspector]
         public string playerTag = "Player";
