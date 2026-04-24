@@ -22,6 +22,7 @@
     <setting file="file://$PROJECT_DIR$/Assets/BoltsTools/BoltsMaterialInstance.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/BoltsTools/BoltsSave.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/BoltsTools/BoltsSaveAttribute.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/BoltsTools/BoltsToolTipAttribute.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/BoltsTools/SavingConfigAsset.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Editor/BoltsTools/BoltsInspecotDrawer.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Editor/BoltsTools/BoltsSavingWindow.cs" root0="FORCE_HIGHLIGHTING" />

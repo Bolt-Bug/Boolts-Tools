@@ -21,15 +21,24 @@ namespace BoltsTools
 
         public static bool isTyping;
 
+        int selectedSuggestionIndex;
+
         string commandTyped = "";
         string lastCommand = "";
+        
+        List<Command> currentMatches = new();
 
+        bool moveCursorToEnd;
+        
         static bool addedCommand;
 
         void Update()
         {
             if (Input.GetKeyDown(keyToOpenCommands) && !isTyping)
+            {
                 isTyping = true;
+                GUI.FocusControl("Command");
+            }
 
             if (isTyping && unlockCursor)
             {
@@ -99,7 +108,7 @@ namespace BoltsTools
             string finalCommandName = commandName.Replace(" ", "");
 
             int index = -1;
-            index = commands.FindIndex(x => x.name == commandName);
+            index = commands.FindIndex(x => x.name == finalCommandName);
             if (index > -1)
             {
                 commands[index].action = action;
@@ -198,7 +207,7 @@ namespace BoltsTools
                     object instance = Activator.CreateInstance(paramType);
 
                     FieldInfo[] fields = paramType.GetFields()
-                        .Where(f => f.GetCustomAttributes<CommandArgAttribute>() != null && !f.IsInitOnly &&
+                        .Where(f => f.GetCustomAttributes<CommandArgAttribute>().Any() && !f.IsInitOnly &&
                                     !f.IsLiteral)
                         .ToArray();
 
@@ -260,33 +269,105 @@ namespace BoltsTools
                 GUI.SetNextControlName("Command");
                 commandTyped = GUI.TextArea(commandRect, commandTyped, style);
                 
-                if (commandTyped.EndsWith("\n") && commandTyped.Length > 0)
-                    RunCommand();
-
-                if (Event.current.type == EventType.KeyDown)
+                if (moveCursorToEnd)
                 {
-                    if (Event.current.keyCode == KeyCode.Tab)
+                    TextEditor editor =
+                        (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
+                    if (editor != null)
+                        editor.MoveTextEnd();
+
+                    moveCursorToEnd = false;
+                }
+                
+                if (commandTyped.EndsWith("\n") && commandTyped.Length > 0)
+                {
+                    focusedArea = "Command";
+                    RunCommand();
+                }
+                
+                string currentInput = commandTyped.Trim();
+                currentMatches = string.IsNullOrEmpty(currentInput)
+                    ? new()
+                    : commands.Where(c => c.name.StartsWith(currentInput, StringComparison.OrdinalIgnoreCase)).ToList();
+                
+                if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Tab)
+                {
+                    if (currentMatches.Count > 0)
+                    {
+                        commandTyped = currentMatches[0].name;
+                        selectedSuggestionIndex = 0;
+                    }
+                    else if (lastCommand.Length > 0)
                         focusedArea = focusedArea == "Command" ? "LastCommand" : "Command";
+                    
+                    Event.current.Use();
                 }
                 
                 GUI.FocusControl(focusedArea);
                 
-                if (lastCommand.Length <= 0) return;
-                float width = style.CalcSize(new GUIContent(lastCommand)).x;
-                float height = style.CalcHeight(new GUIContent(lastCommand), width);
+                if (currentMatches.Count > 0)
+                {
+                    GUIStyle suggestionStyle = new GUIStyle(GUI.skin.box)
+                    {
+                        alignment = TextAnchor.MiddleLeft,
+                        fontSize = 40,
+                        richText = true
+                    };
 
-                GUIStyle lastCommandStyle = new GUIStyle(GUI.skin.box)
-                    { alignment = TextAnchor.MiddleLeft, fontSize = 50, richText = true };
+                    float suggestionHeight = 60f;
+                    float totalHeight = suggestionHeight * currentMatches.Count;
+                    float yStart = Screen.height - 200 - totalHeight - 10;
+                    
+                    selectedSuggestionIndex = Mathf.Clamp(selectedSuggestionIndex, 0, currentMatches.Count - 1);
 
-                Rect lastCommandRect = new Rect(0, Screen.height - 210 - height, width, height);
+                    for (int i = 0; i < currentMatches.Count; i++)
+                    {
+                        Rect rect = new Rect(0, yStart + i * suggestionHeight, Screen.width, suggestionHeight);
+                        bool isHighlighted = i == selectedSuggestionIndex;
+
+                        string label = isHighlighted
+                            ? $"<color=yellow>> {currentMatches[i].name}</color>"
+                            : $"  {currentMatches[i].name}";
+
+                        if (!string.IsNullOrEmpty(currentMatches[i].description))
+                            label += $"  <color=grey>{currentMatches[i].description}</color>";
+
+                        GUI.Box(rect, label, suggestionStyle);
+
+                        if (Event.current.type == EventType.MouseDown && rect.Contains(Event.current.mousePosition))
+                        {
+                            commandTyped = currentMatches[i].name;
+                            selectedSuggestionIndex = 0;
+
+                            moveCursorToEnd = true;
+                            
+                            Event.current.Use();
+                        }
+                    }
+                }
+                else
+                {
+                    selectedSuggestionIndex = 0;
+
+                    if (lastCommand.Length > 0)
+                    {
+                        float width = style.CalcSize(new GUIContent(lastCommand)).x;
+                        float height = style.CalcHeight(new GUIContent(lastCommand), width);
+
+                        GUIStyle lastCommandStyle = new GUIStyle(GUI.skin.box)
+                            { alignment = TextAnchor.MiddleLeft, fontSize = 50, richText = true };
+
+                        Rect lastCommandRect = new Rect(0, Screen.height - 210 - height, width, height);
                 
-                GUI.SetNextControlName("LastCommand");
-                GUI.TextArea(lastCommandRect,
-                    "<color=white>" + lastCommand,
-                    lastCommandStyle);
+                        GUI.SetNextControlName("LastCommand");
+                        GUI.TextArea(lastCommandRect,
+                            "<color=white>" + lastCommand,
+                            lastCommandStyle);
+                    }
+                }
             }
         }
-
+        
         List<string> ParseTokens(string input)
         {
             List<string> tokens = new();
@@ -300,7 +381,7 @@ namespace BoltsTools
                     for (int j = i; j < words.Length; j++)
                     {
                         grouped += (j == i ? "" : " ") + words[j];
-                        if (words[i].EndsWith("]"))
+                        if (words[j].EndsWith("]"))
                         {
                             i = j;
                             break;
@@ -318,7 +399,13 @@ namespace BoltsTools
 
         public void ShowCommands()
         {
-            // Does "int = 1" So That There Is No Extra Space
+            if(commands.Count == 0) 
+            {
+                Debug.LogError("No Commands Register");
+                return;
+            }
+            
+            // Does "int = 1" So That There Is No Empty Spaces
             string allCommands = $"Command: {commands[0].name}    Description: {commands[0].description}";
             for (int i = 1; i < commands.Count; i++)
             {
@@ -339,7 +426,7 @@ namespace BoltsTools
         {
             command = this;
             
-            AddCommand("help", "ShowCommands", this, "Shows This Menu");
+            AddCommand("help", "ShowCommands", this, "Shows All Commands");
         }
 
         void Reset()
