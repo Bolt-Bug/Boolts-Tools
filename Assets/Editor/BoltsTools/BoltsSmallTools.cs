@@ -9,7 +9,7 @@ using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
-namespace BoltsTools
+namespace editor.BoltsTools
 {
     public class SpawnGrid : EditorWindow
     {
@@ -18,8 +18,8 @@ namespace BoltsTools
         Vector3 posOffset;
         Vector3 rotation;
 
-        UnityEngine.Object objectToSpawn;
-        UnityEngine.Object parent;
+        Object objectToSpawn;
+        Object parent;
         GameObject previewPos;
 
         bool spawnList;
@@ -61,10 +61,10 @@ namespace BoltsTools
                 }
             }
             else
-                objectToSpawn = EditorGUILayout.ObjectField("Prefab", objectToSpawn, typeof(UnityEngine.Object), false);
+                objectToSpawn = EditorGUILayout.ObjectField("Prefab", objectToSpawn, typeof(Object), false);
 
             parent = EditorGUILayout.ObjectField(new GUIContent("Parent", "Can Be Left Empty"), parent,
-                typeof(UnityEngine.Object), true);
+                typeof(Object), true);
 
             gridSize = EditorGUILayout.Vector3IntField("Grid Size", gridSize);
             startPos = EditorGUILayout.Vector3Field("Start Position", startPos);
@@ -145,7 +145,7 @@ namespace BoltsTools
                         Vector3 posToSpawn = new Vector3(startPos.x + x * posOffset.x, startPos.y + y * posOffset.y,
                             startPos.z + z * posOffset.z);
 
-                        UnityEngine.Object objToSpawn;
+                        Object objToSpawn;
 
                         if (spawnList)
                         {
@@ -454,6 +454,8 @@ namespace BoltsTools
             GetWindow<MakeScriptableObject>();
         }
 
+        void OnEnable() => RefreshTypes();
+
         void OnGUI()
         {
             if (soTypes.Count == 0)
@@ -488,12 +490,27 @@ namespace BoltsTools
 
         void RefreshTypes()
         {
-            soTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes()).Where(t =>
+            var userAssemblies = new HashSet<string>
+            {
+                "Assembly-CSharp",
+                "Assembly-CSharp-firstpass",
+            };
+            
+            soTypes = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => userAssemblies.Contains(a.GetName().Name))
+                .SelectMany(assembly =>
+                {
+                    try { return assembly.GetTypes(); }
+                    catch { return Type.EmptyTypes; }
+                })
+                .Where(t =>
                     t.IsSubclassOf(typeof(ScriptableObject))
                     && !t.IsAbstract
-                    && !t.Namespace?.StartsWith("Unity") == true
-                    && !t.Namespace?.StartsWith("TMPro") == true
-                    && !t.Namespace?.StartsWith("SavingConfigAsset") == true)
+                    && t.Namespace != null
+                    && !t.Namespace.StartsWith("Unity")
+                    && !t.Namespace.StartsWith("TMPro")
+                    && !t.Namespace.StartsWith("Cinemachine")
+                    && !t.Namespace.StartsWith("Bolt"))
                 .OrderBy(t => t.Name)
                 .ToList();
 
@@ -503,6 +520,7 @@ namespace BoltsTools
                 selectedIndex = 0;
         }
 
+        // ReSharper disable Unity.PerformanceAnalysis
         void CreateAsset(Type type)
         {
             var asset = CreateInstance(type);
@@ -526,5 +544,79 @@ namespace BoltsTools
         }
     }
 
-    
+    public class EditScriptableObject : EditorWindow
+    {
+        ScriptableObject[] allObjects;
+        ScriptableObject selected;
+        string[] objectNames;
+        int selectedIndex;
+        Editor cachedEditor;
+        Vector2 scroll;
+        
+        [MenuItem("Tools/Bolts Tools/Small Tools/Edit ScriptableObject #r")]
+        public static void OpenWindow()
+        {
+            GetWindow<EditScriptableObject>();
+        }
+
+        void OnEnable() => RefreshList();
+
+        void OnDisable()
+        {
+            if(cachedEditor != null)
+                DestroyImmediate(cachedEditor);
+        }
+
+        void RefreshList()
+        {
+            string[] guids = AssetDatabase.FindAssets("t:ScriptableObject");
+
+            allObjects = guids
+                .Select(guid => AssetDatabase.LoadAssetAtPath<ScriptableObject>
+                    (AssetDatabase.GUIDToAssetPath(guid)))
+                .Where(obj => obj != null)
+                .ToArray();
+
+            objectNames = allObjects
+                .Select(obj => $"{obj.GetType().Name} - {obj.name}")
+                .ToArray();
+        }
+
+        void OnGUI()
+        {
+            EditorGUILayout.LabelField("All ScriptableObject", EditorStyles.boldLabel);
+
+            if (allObjects == null || allObjects.Length == 0)
+            {
+                EditorGUILayout.HelpBox("No ScriptableObject Found", MessageType.Error);
+                
+                if(GUILayout.Button("Refresh")) RefreshList();
+                
+                return;
+            }
+
+            int newIndex = EditorGUILayout.Popup("Select ScriptableObject", selectedIndex, objectNames);
+            if (newIndex != selectedIndex)
+            {
+                selectedIndex = newIndex;
+                
+                if (cachedEditor != null)
+                    DestroyImmediate(cachedEditor);
+                cachedEditor = null;
+            }
+            
+            selected = allObjects[selectedIndex];
+            Editor.CreateCachedEditor(selected, null, ref cachedEditor);
+            
+            if(GUILayout.Button("Ping Object"))
+                EditorGUIUtility.PingObject(allObjects[selectedIndex]);
+
+            if (selected != null && cachedEditor != null)
+            {
+                scroll = EditorGUILayout.BeginScrollView(scroll);
+                cachedEditor.OnInspectorGUI();
+                EditorGUILayout.EndScrollView();
+            }
+        }
+    }
 }

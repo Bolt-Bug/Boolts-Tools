@@ -707,7 +707,7 @@ namespace editor.BoltsTools
         [MenuItem("Tools/Bolts Tools/Documentation #&d")]
         public static void OpenDocumentation()
         {
-            Application.OpenURL("https://github.com/Bolt-Bug/Boolts-Tools");
+            Application.OpenURL("https://github.com/Bolt-Bug/Boolts-Tools/wiki");
         }
 
         [MenuItem("Tools/Bolts Tools/Open Save Folder #&o")]
