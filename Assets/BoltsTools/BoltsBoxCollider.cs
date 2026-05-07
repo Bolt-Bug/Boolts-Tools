@@ -46,7 +46,7 @@ public class BoltsBoxCollider : MonoBehaviour
         #endif
         
         boxCollider.center = (min + max) / 2;
-        boxCollider.size = min - max;
+        boxCollider.size = max - min;
     }
     
     private void OnEnable()

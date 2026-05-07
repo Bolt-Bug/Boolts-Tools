@@ -19,6 +19,8 @@ namespace BoltsTools
         [BoltsToolTip("Shows The Cursor When Typing A Command")]
         public bool unlockCursor = true;
 
+        bool showCommands = true;
+
         public static bool isTyping;
 
         int selectedSuggestionIndex;
@@ -34,6 +36,8 @@ namespace BoltsTools
 
         void Update()
         {
+            if(!showCommands) return;
+            
             if (Input.GetKeyDown(keyToOpenCommands) && !isTyping)
             {
                 isTyping = true;
@@ -435,6 +439,7 @@ namespace BoltsTools
             {
                 unlockCursor = LoadBoltsDebugMenu._settings.unlockCursor;
                 keyToOpenCommands = LoadBoltsDebugMenu._settings.keyToOpenCommands;
+                showCommands = LoadBoltsDebugMenu._settings.showCommands;
             }
         }
 

@@ -12,6 +12,7 @@ namespace BoltsTools
         float frames = 0, time = 0;
 
         bool showDebug;
+        bool canShowDebug = true;
 
         static readonly List<DebugText> textToShow = new();
         static readonly List<DebugButton> buttonsToShow = new();
@@ -168,6 +169,8 @@ namespace BoltsTools
         
         void Update()
         {
+            if(!canShowDebug) return;
+            
             frames = (float)Decimal.Round((decimal)(1 / Time.unscaledDeltaTime));
             time += Time.unscaledDeltaTime;
             if (time >= 1)
@@ -208,6 +211,7 @@ namespace BoltsTools
                 showPlayerPos = LoadBoltsDebugMenu._settings.showPlayerPos;
                 keyToOpenDebug = LoadBoltsDebugMenu._settings.keyToOpenDebug;
                 playerTag = LoadBoltsDebugMenu._settings.playerTag;
+                canShowDebug = LoadBoltsDebugMenu._settings.showDebug;
             }
         }
     }

@@ -16,5 +16,7 @@ namespace BoltsTools
         public string playerTag = "Player";
 
         public KeyCode keyToOpenCommands = KeyCode.F2;
+
+        public bool showDebug = true, showCommands = true;
     }
 }
